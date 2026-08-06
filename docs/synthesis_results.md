@@ -27,7 +27,7 @@ Balancing the scheduler preserved oldest-ready issue and same-cycle CDB wakeup w
 The final synthesized design occupies 439,721 µm², or approximately 0.440 mm², of cell area.
 
 | Cell category | Area | Percentage |
-|---|---:|---:|
+|---|---|---|
 | Combinational logic | 153,617 µm² | 34.94% |
 | Sequential logic | 132,121 µm² | 30.05% |
 | SRAM macros | 153,984 µm² | 35.02% |
