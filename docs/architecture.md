@@ -71,7 +71,7 @@ Register-producing execution results and load results write the physical registe
 The memory system uses separate instruction and data cache paths. The same pipelined cache structure is instantiated as both the I-cache and D-cache, with each cache connected to DRAM through a cache-line adapter.
 
 <p align="center">
-  <img src="../images/memory_subsystem.png" alt="Memory subsystem with I-cache, D-cache, cache-line adapters, and memory arbitration" width="750">
+  <img src="../images/memory_subsystem.png" alt="Memory subsystem with I-cache, D-cache, cache-line adapters, and memory arbitration" width="600">
 </p>
 
 <p align="center">
