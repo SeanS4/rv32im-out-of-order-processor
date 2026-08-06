@@ -55,7 +55,7 @@ The final reservation station uses balanced selection logic rather than a serial
 Issued instructions are routed to the appropriate functional unit based on decoded control signals. Integer register and immediate instructions use the ALU, branches and jumps are resolved in execute, and RV32M instructions are sent to the multiply or divide path.
 
 <p align="center">
-  <img src="../images/multiplication_pathway.png" alt="Multiplication instruction pathway with parallel metadata tracking" width="650">
+  <img src="../images/multiplication_pathway.png" alt="Multiplication instruction pathway with parallel metadata tracking" width="400">
 </p>
 
 <p align="center">
