@@ -7,7 +7,7 @@ The processor was synthesized with Synopsys Design Compiler using the Nangate 45
 | Metric | Result |
 |---|---|
 | Clock target | 10.000 ns / 100 MHz |
-| Worst-case setup slack | + 0.007241 ns / +7.241 ps |
+| Worst-case setup slack | +0.007241 ns / +7.241 ps |
 | Total synthesized cell area | 439,721 µm² / 0.440 mm² |
 | Total cells | 159,964 |
 | Combinational cells | 129,955 |
