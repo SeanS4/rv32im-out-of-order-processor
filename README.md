@@ -18,7 +18,7 @@ IPC was measured over the complete CoreMark run. Timing and area are post-synthe
 ## Architecture Diagram
 
 <p align="center">
-  <img src="images/block_diagram.png" alt="Out-of-order RV32IM processor block diagram" width="850">
+  <img src="images/block_diagram.svg" alt="Out-of-order RV32IM processor block diagram" width="500">
 </p>
 
 ## Design Overview
