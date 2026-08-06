@@ -65,14 +65,6 @@ The final implementation met the 10 ns clock target and occupied 439,721 µm² o
 | Path | Description |
 |---|---|
 | [`rtl/`](rtl/) | SystemVerilog RTL organized by processor subsystem |
-| [`rtl/top/`](rtl/top/) | Top-level CPU integration |
-| [`rtl/packages/`](rtl/packages/) | Shared package definitions and structures |
-| [`rtl/frontend/`](rtl/frontend/) | Fetch, instruction queue, TAGE, and BTB logic |
-| [`rtl/rename/`](rtl/rename/) | Decode, rename, dispatch, RAT, RRAT, PRF, and freelist |
-| [`rtl/dispatch/`](rtl/dispatch/) | Reservation station, wakeup, and issue selection |
-| [`rtl/execute/`](rtl/execute/) | Execute, multiply/divide integration, and result queue |
-| [`rtl/memory/`](rtl/memory/) | Load/store queues, cache, and memory arbiter |
-| [`rtl/commit/`](rtl/commit/) | Reorder buffer and writeback |
 | [`docs/`](docs/) | Architecture, optimization, verification, and synthesis documentation |
 | [`reports/`](reports/) | Supporting profiler and synthesis reports |
 | [`images/`](images/) | Diagrams, waveforms, and report screenshots |
