@@ -1,0 +1,1573 @@
+Info: [VCS_SAVE_RESTORE_INFO] ASLR (Address Space Layout Randomization) is detected on the machine. To enable $save functionality, ASLR will be switched off and simv re-executed.
+Please use '-no_save' simv switch to avoid this.
+Information: License queuing is enabled. (DCSH-18)
+
+                           Design Compiler Graphical 
+                                 DC Ultra (TM)
+                                  DFTMAX (TM)
+                              Power Compiler (TM)
+                                 DesignWare (R)
+                                 DC Expert (TM)
+                               Design Vision (TM)
+                               HDL Compiler (TM)
+                               VHDL Compiler (TM)
+                                  DFT Compiler
+                               Design Compiler(R)
+
+                 Version W-2024.09 for linux64 - Aug 27, 2024 
+
+                    Copyright (c) 1988 - 2024 Synopsys, Inc.
+   This software and the associated documentation are proprietary to Synopsys,
+ Inc. This software may only be used in accordance with the terms and conditions
+ of a written license agreement with Synopsys, Inc. All other use, reproduction,
+   or distribution of this software is strictly prohibited.  Licensed Products
+     communicate with Synopsys servers for the purpose of providing software
+    updates, detecting software piracy and verifying that customers are using
+    Licensed Products in conformity with the applicable License Key for such
+  Licensed Products. Synopsys will use information gathered in connection with
+    this process to deliver software updates and pursue software pirates and
+                                   infringers.
+
+ Inclusivity & Diversity - Visit SolvNetPlus to read the "Synopsys Statement on
+            Inclusivity and Diversity" (Refer to article 000036315 at
+                        https://solvnetplus.synopsys.com)
+Initializing...
+Current time:       Fri Jul 17 20:17:16 2026
+Hostname:           fastx4-24.ews.illinois.edu
+CPU Model:          Intel(R) Xeon(R) Silver 4216 CPU @ 2.10GHz
+CPU Details:        Cores = 10 : Sockets = 1 : Cache Size = 22528 KB : Freq = 2.10 GHz
+OS:                 Linux 5.14.0-687.26.1.el9_8.x86_64
+RAM:                 23 GB (Free  14 GB)
+Swap:                 7 GB (Free   7 GB)
+Work Filesystem:    /home/seanms4 mounted to ews-homes-inst-dr.engrit.illinois.edu:/ewshomes/fspool-s/seanms4/linux
+Tmp Filesystem:     /tmp mounted to /dev/mapper/fastx4_24_sys-tmp
+Work Disk:           25 GB (Free  24 GB)
+Tmp Disk:             7 GB (Free   7 GB)
+
+CPU Load: 14%, Ram Free: 14 GB, Swap Free: 7 GB, Work Disk Free: 24 GB, Tmp Disk Free: 7 GB
+source wrappers.tcl
+check_env_vars {
+    DC_CORES
+    DESIGN_TOP
+    STD_CELL_ALIB
+    STD_CELL_LIB
+    SRAM_LIB
+    RTL_SOURCES
+    CLOCK_PERIOD_PS
+    DC_COMPILE_CMD
+    DC_COMPILE_ITER
+    DC_COMPILE_CMD_INC
+    DC_MIN_POWER
+}
+# Set up suppression
+try_wrapper {
+    source "dc_warn.tcl"
+}
+ : 
+    source "dc_warn.tcl" : 
+ : 
+# Set up synthesis options
+try_wrapper {
+    get_license DC-Ultra-Features
+    get_license DC-Ultra-Opt
+    if {$env(DC_MIN_POWER) eq "1"} { set power_enable_minpower true }
+    set hdlin_ff_always_sync_set_reset true
+    set hdlin_ff_always_async_set_reset true
+    set hdlin_infer_multibit default_all
+    set hdlin_check_no_latch true
+    set hdlin_while_loop_iterations 2000000000
+    set_host_options -max_cores $env(DC_CORES)
+    set_app_var report_default_significant_digits 6
+    set design_toplevel $env(DESIGN_TOP)
+}
+ : 
+    get_license DC-Ultra-Features : 1
+    get_license DC-Ultra-Opt : 1
+    if {$env(DC_MIN_POWER) eq "1"} { set power_enable_minpower true } : 
+    set hdlin_ff_always_sync_set_reset true : true
+    set hdlin_ff_always_async_set_reset true : true
+    set hdlin_infer_multibit default_all : default_all
+    set hdlin_check_no_latch true : true
+    set hdlin_while_loop_iterations 2000000000 : 2000000000
+    set_host_options -max_cores $env(DC_CORES) : 1
+    set_app_var report_default_significant_digits 6 : 6
+    set design_toplevel $env(DESIGN_TOP) : cpu
+ : 
+# Set up libraries
+try_wrapper {
+    define_design_lib WORK -path ./work
+    set alib_library_analysis_path $env(STD_CELL_ALIB)
+    set symbol_library [list generic.sdb]
+    set synthetic_library [list dw_foundation.sldb]
+    set target_library $env(STD_CELL_LIB)
+    set link_library [concat [list "*" $target_library $synthetic_library] $env(SRAM_LIB)]
+}
+ : 
+    define_design_lib WORK -path ./work : 1
+    set alib_library_analysis_path $env(STD_CELL_ALIB) : /class/ece411/freepdk-45nm/alib
+    set symbol_library [list generic.sdb] : generic.sdb
+    set synthetic_library [list dw_foundation.sldb] : dw_foundation.sldb
+    set target_library $env(STD_CELL_LIB) : /class/ece411/freepdk-45nm/stdcells.db
+    set link_library [concat [list "*" $target_library $synthetic_library] $env(SRAM_LIB)] : * /class/ece411/freepdk-45nm/stdcells.db dw_foundation.sldb /home/seanms4/ece411/mp_ooo/build/sram/mp_cache_data_array/mp_cache_data_array_TT_1p0V_25C_lib.db /home/seanms4/ece411/mp_ooo/build/sram/mp_cache_tag_array/mp_cache_tag_array_TT_1p0V_25C_lib.db
+ : 
+# Synthesis setup
+try_wrapper {
+    analyze -library WORK -format sverilog [split $::env(RTL_SOURCES) " "]
+    elaborate $design_toplevel
+    current_design $design_toplevel
+    change_names -rules verilog -hierarchy
+    check_design
+    set_wire_load_model -name "5K_hvratio_1_1"
+    set_wire_load_mode enclosed
+    source "constraints.sdc"
+    link
+}
+ : 
+Running PRESTO HDLC
+Compiling source file /home/seanms4/ece411/mp_ooo/rtl/pkg/tage_types.sv
+Compiling source file /home/seanms4/ece411/mp_ooo/rtl/pkg/types.sv
+Compiling source file /home/seanms4/ece411/mp_ooo/rtl/pkg/cache_types.sv
+Compiling source file /home/seanms4/ece411/mp_ooo/rtl/memory_arbitor.sv
+Compiling source file /home/seanms4/ece411/mp_ooo/rtl/next_line_prefetcher.sv
+Compiling source file /home/seanms4/ece411/mp_ooo/rtl/store_queue.sv
+Compiling source file /home/seanms4/ece411/mp_ooo/rtl/cpu.sv
+Compiling source file /home/seanms4/ece411/mp_ooo/rtl/fsu_queue.sv
+Compiling source file /home/seanms4/ece411/mp_ooo/rtl/load_queue.sv
+Compiling source file /home/seanms4/ece411/mp_ooo/rtl/tage_bp.sv
+Compiling source file /home/seanms4/ece411/mp_ooo/rtl/pkg/sp_ff_array.sv
+Compiling source file /home/seanms4/ece411/mp_ooo/rtl/FSUs/mul.sv
+Compiling source file /home/seanms4/ece411/mp_ooo/rtl/FSUs/div.sv
+Compiling source file /home/seanms4/ece411/mp_ooo/rtl/FSUs/alu.sv
+Compiling source file /home/seanms4/ece411/mp_ooo/rtl/cache/adapter.sv
+Compiling source file /home/seanms4/ece411/mp_ooo/rtl/cache/cache.sv
+Compiling source file /home/seanms4/ece411/mp_ooo/rtl/cache/provided_cache.sv
+Compiling source file /home/seanms4/ece411/mp_ooo/rtl/ooo_designparts/rat.sv
+Compiling source file /home/seanms4/ece411/mp_ooo/rtl/ooo_designparts/rrat.sv
+Compiling source file /home/seanms4/ece411/mp_ooo/rtl/ooo_designparts/rs.sv
+Compiling source file /home/seanms4/ece411/mp_ooo/rtl/ooo_designparts/rob.sv
+Compiling source file /home/seanms4/ece411/mp_ooo/rtl/ooo_designparts/prf.sv
+Compiling source file /home/seanms4/ece411/mp_ooo/rtl/ooo_designparts/instruction_queue.sv
+Compiling source file /home/seanms4/ece411/mp_ooo/rtl/ooo_designparts/freelist.sv
+Compiling source file /home/seanms4/ece411/mp_ooo/rtl/ooo_pipeline_stages/writeback.sv
+Compiling source file /home/seanms4/ece411/mp_ooo/rtl/ooo_pipeline_stages/fetch.sv
+Compiling source file /home/seanms4/ece411/mp_ooo/rtl/ooo_pipeline_stages/execute.sv
+Compiling source file /home/seanms4/ece411/mp_ooo/rtl/ooo_pipeline_stages/dispatch_issue.sv
+Compiling source file /home/seanms4/ece411/mp_ooo/rtl/ooo_pipeline_stages/rename_dispatch.sv
+Compiling source file /home/seanms4/ece411/mp_ooo/rtl/ooo_pipeline_stages/decode.sv
+Presto compilation completed successfully.
+Loading db file '/class/ece411/freepdk-45nm/stdcells.db'
+Loading db file '/software/Synopsys-2024_x86_64/syn/W-2024.09/libraries/syn/dw_foundation.sldb'
+Loading db file '/home/seanms4/ece411/mp_ooo/build/sram/mp_cache_data_array/mp_cache_data_array_TT_1p0V_25C_lib.db'
+Loading db file '/home/seanms4/ece411/mp_ooo/build/sram/mp_cache_tag_array/mp_cache_tag_array_TT_1p0V_25C_lib.db'
+    analyze -library WORK -format sverilog [split $::env(RTL_SOURCES) " "] : 1
+Loading db file '/software/Synopsys-2024_x86_64/syn/W-2024.09/libraries/syn/gtech.db'
+Loading db file '/software/Synopsys-2024_x86_64/syn/W-2024.09/libraries/syn/standard.sldb'
+  Loading link library 'NangateOpenCellLibrary'
+  Loading link library 'mp_cache_data_array_TT_1p0V_25C_lib'
+  Loading link library 'mp_cache_tag_array_TT_1p0V_25C_lib'
+  Loading link library 'gtech'
+Running PRESTO HDLC
+
+Inferred memory devices in process in routine 'cpu' in file
+	 /home/seanms4/ece411/mp_ooo/rtl/cpu.sv'.
+===========================================================================================
+|        Register Name         |   Type    | Width | Bus | MB |  Set  | Reset | ST | Line |
+===========================================================================================
+|       lq_fwd_resp_reg        | Flip-flop |   1   |  N  | N  | None  | None  | N  | 407  |
+|      sq_fwd_data_q_reg       | Flip-flop |  32   |  Y  | Y  | None  | None  | N  | 418  |
+|     lq_pending_rmask_reg     | Flip-flop |   4   |  Y  | Y  | None  | None  | N  | 432  |
+|     lq_pending_addr_reg      | Flip-flop |  32   |  Y  | Y  | None  | None  | N  | 432  |
+|     sq_pending_wmask_reg     | Flip-flop |   4   |  Y  | Y  | None  | None  | N  | 449  |
+|     sq_pending_addr_reg      | Flip-flop |  32   |  Y  | Y  | None  | None  | N  | 449  |
+|     sq_pending_data_reg      | Flip-flop |  32   |  Y  | Y  | None  | None  | N  | 449  |
+|        btb_valid_reg         | Flip-flop |  256  |  Y  | Y  | None  | Sync  | N  | 523  |
+|        btb_target_reg        | Flip-flop | 8192  |  Y  | Y  | None  | Sync  | N  | 523  |
+|         btb_tag_reg          | Flip-flop | 1536  |  Y  | Y  | None  | Sync  | N  | 523  |
+| flush_rob_pending_data_q_reg | Flip-flop |  307  |  Y  | Y  | None  | Sync  | N  | 734  |
+|   flush_rob_pending_q_reg    | Flip-flop |   1   |  N  | N  | None  | Sync  | N  | 734  |
+| flush_rob_pending_idx_q_reg  | Flip-flop |   5   |  Y  | Y  | None  | Sync  | N  | 734  |
+|        if_id_reg_reg         | Flip-flop |  130  |  Y  | Y  | None  | None  | N  | 956  |
+|      id_rename_reg_reg       | Flip-flop |  204  |  Y  | Y  | None  | None  | N  | 974  |
+|    dispatch_issue_reg_reg    | Flip-flop |  239  |  Y  | Y  | None  | None  | N  | 1023 |
+|      issue_exec_reg_reg      | Flip-flop |  336  |  Y  | Y  | None  | None  | N  | 1121 |
+===========================================================================================
+Statistics for MUX_OPs
+======================================================
+| block name/line  | Inputs | Outputs | # sel inputs |
+======================================================
+|     cpu/520      |  256   |    1    |      8       |
+|     cpu/520      |  256   |    6    |      8       |
+|     cpu/521      |  256   |   32    |      8       |
+|     cpu/1056     |   64   |    1    |      6       |
+|     cpu/1061     |   64   |    1    |      6       |
+|     cpu/1079     |   64   |    1    |      6       |
+|     cpu/1090     |   64   |    1    |      6       |
+======================================================
+Information:  Complex logic will not be considered for set/reset inference. (ELAB-2008)
+Presto compilation completed successfully. (cpu)
+Module: cpu, Ports: 198, Input: 100, Output: 98, Inout: 0
+Module: cpu, Registers: 11343, Async set/reset: 0, Sync set/reset: 10297
+Information: Module report end. (ELAB-965)
+Module: cpu, Elapsed Time: 00:00:02, CPU Time: 00:00:03, Total Mem: 234.20 MB, Mem: 101.36 MB, Time: Fri Jul 17 20:17:19 2026
+Elaborated 1 design.
+Current design is now 'cpu'.
+Information: Building the design 'tage_bp'. (HDL-193)
+
+Inferred memory devices in process in routine 'tage_bp' in file
+	 /home/seanms4/ece411/mp_ooo/rtl/tage_bp.sv'.
+==================================================================================
+|    Register Name    |   Type    | Width | Bus | MB |  Set  | Reset | ST | Line |
+==================================================================================
+|       ghr_reg       | Flip-flop |  130  |  Y  | Y  | None  | Sync  | N  | 464  |
+|     u_tick_reg      | Flip-flop |  21   |  Y  | Y  | None  | Sync  | N  | 464  |
+|      ch_t1_reg      | Flip-flop |  36   |  Y  | Y  | None  | Sync  | N  | 464  |
+|      ch_t2_reg      | Flip-flop |  32   |  Y  | Y  | None  | Sync  | N  | 464  |
+|      ch_i_reg       | Flip-flop |  28   |  Y  | Y  | None  | Sync  | N  | 464  |
+|   base_table_reg    | Flip-flop | 4096  |  Y  | Y  | Sync  | Sync  | N  | 464  |
+|     t_valid_reg     | Flip-flop |  512  |  Y  | Y  | None  | Sync  | N  | 464  |
+|       t_u_reg       | Flip-flop | 1024  |  Y  | Y  | None  | None  | N  | 464  |
+|      t_ctr_reg      | Flip-flop | 1536  |  Y  | Y  | None  | None  | N  | 464  |
+|      t_tag_reg      | Flip-flop | 4608  |  Y  | Y  | None  | None  | N  | 464  |
+==================================================================================
+Statistics for MUX_OPs
+======================================================
+| block name/line  | Inputs | Outputs | # sel inputs |
+======================================================
+|   tage_bp/351    |  128   |    2    |      7       |
+|   tage_bp/351    |  128   |    9    |      7       |
+|   tage_bp/351    |  128   |    2    |      7       |
+|   tage_bp/351    |  128   |    9    |      7       |
+|   tage_bp/351    |  128   |    2    |      7       |
+|   tage_bp/351    |  128   |    9    |      7       |
+|   tage_bp/351    |  128   |    2    |      7       |
+|   tage_bp/351    |  128   |    9    |      7       |
+|   tage_bp/358    |  2048  |    1    |      11      |
+|   tage_bp/394    |  128   |    1    |      7       |
+|   tage_bp/394    |  128   |    2    |      7       |
+|   tage_bp/394    |  128   |    1    |      7       |
+|   tage_bp/394    |  128   |    2    |      7       |
+|   tage_bp/394    |  128   |    1    |      7       |
+|   tage_bp/394    |  128   |    2    |      7       |
+|   tage_bp/394    |  128   |    1    |      7       |
+|   tage_bp/394    |  128   |    2    |      7       |
+|   tage_bp/516    |  2048  |    2    |      11      |
+|   tage_bp/528    |   4    |    7    |      2       |
+|   tage_bp/525    |   4    |   384   |      2       |
+|   tage_bp/525    |  128   |    3    |      7       |
+|   tage_bp/536    |   4    |   256   |      2       |
+|   tage_bp/536    |  128   |    2    |      7       |
+======================================================
+Presto compilation completed successfully. (tage_bp)
+Module: tage_bp, Ports: 135, Input: 101, Output: 34, Inout: 0
+Module: tage_bp, Registers: 12023, Async set/reset: 0, Sync set/reset: 4855
+Information: Module report end. (ELAB-965)
+Module: tage_bp, Elapsed Time: 00:00:07, CPU Time: 00:00:07, Total Mem: 495.34 MB, Mem: 201.74 MB, Time: Fri Jul 17 20:17:28 2026
+Information: Building the design 'memory_arbitor'. (HDL-193)
+
+Statistics for case statements in always block in file
+	'/home/seanms4/ece411/mp_ooo/rtl/memory_arbitor.sv'
+============================================================
+|    Line    |  full/ parallel  |      block location      |
+============================================================
+|    156     |    user/user     | always block at line 140 |
+============================================================
+
+Inferred memory devices in process in routine 'memory_arbitor' in file
+	 /home/seanms4/ece411/mp_ooo/rtl/memory_arbitor.sv'.
+==================================================================================
+|    Register Name    |   Type    | Width | Bus | MB |  Set  | Reset | ST | Line |
+==================================================================================
+|      state_reg      | Flip-flop |   2   |  Y  | Y  | None  | Sync  | N  | 133  |
+==================================================================================
+Presto compilation completed successfully. (memory_arbitor)
+Module: memory_arbitor, Ports: 378, Input: 212, Output: 166, Inout: 0
+Module: memory_arbitor, Registers: 2, Async set/reset: 0, Sync set/reset: 2
+Information: Module report end. (ELAB-965)
+Information: Building the design 'fetch'. (HDL-193)
+
+Inferred memory devices in process in routine 'fetch' in file
+	 /home/seanms4/ece411/mp_ooo/rtl/ooo_pipeline_stages/fetch.sv'.
+==================================================================================
+|    Register Name    |   Type    | Width | Bus | MB |  Set  | Reset | ST | Line |
+==================================================================================
+|       pc_reg        | Flip-flop |  32   |  Y  | Y  | Sync  | Sync  | N  |  61  |
+==================================================================================
+Presto compilation completed successfully. (fetch)
+Module: fetch, Ports: 337, Input: 138, Output: 199, Inout: 0
+Module: fetch, Registers: 32, Async set/reset: 0, Sync set/reset: 32
+Information: Module report end. (ELAB-965)
+Information: Building the design 'decode'. (HDL-193)
+
+Statistics for case statements in always block in file
+	'/home/seanms4/ece411/mp_ooo/rtl/ooo_pipeline_stages/decode.sv'
+===========================================================
+|    Line    |  full/ parallel  |      block location     |
+===========================================================
+|     36     |    user/user     | always block at line 31 |
+|     45     |    user/user     | always block at line 31 |
+|     93     |    user/user     | always block at line 31 |
+|    125     |    user/user     | always block at line 31 |
+|    203     |    user/user     | always block at line 31 |
+|    221     |    user/user     | always block at line 31 |
+===========================================================
+Presto compilation completed successfully. (decode)
+Module: decode, Ports: 106, Input: 32, Output: 74, Inout: 0
+Module: decode, Registers: 0, Async set/reset: 0, Sync set/reset: 0
+Information: Module report end. (ELAB-965)
+Information: Building the design 'load_queue' instantiated from design 'cpu' with
+	the parameters "DEPTH=8". (HDL-193)
+
+Statistics for case statements in always block in file
+	'/home/seanms4/ece411/mp_ooo/rtl/load_queue.sv'
+============================================================
+|    Line    |  full/ parallel  |      block location      |
+============================================================
+|    103     |    user/user     | always block at line 205 |
+|    114     |    user/user     | always block at line 205 |
+============================================================
+
+Inferred memory devices in process in routine 'load_queue_DEPTH8' in file
+	 /home/seanms4/ece411/mp_ooo/rtl/load_queue.sv'.
+==========================================================================================
+|        Register Name        |   Type    | Width | Bus | MB |  Set  | Reset | ST | Line |
+==========================================================================================
+|   cdb_issue_exec_reg_reg    | Flip-flop |  336  |  Y  | Y  | None  | Sync  | N  | 205  |
+|           lq_reg            | Flip-flop | 3112  |  Y  | Y  | None  | Sync  | N  | 205  |
+|       pending_idx_reg       | Flip-flop |   3   |  Y  | Y  | None  | Sync  | N  | 205  |
+|      pending_stale_reg      | Flip-flop |   1   |  N  | N  | None  | Sync  | N  | 205  |
+| load_queue_pending_resp_reg | Flip-flop |   1   |  N  | N  | None  | Sync  | N  | 205  |
+|        cdb_valid_reg        | Flip-flop |   1   |  N  | N  | None  | Sync  | N  | 205  |
+|       cdb_rd_phys_reg       | Flip-flop |   6   |  Y  | Y  | None  | Sync  | N  | 205  |
+|       cdb_rob_idx_reg       | Flip-flop |   5   |  Y  | Y  | None  | Sync  | N  | 205  |
+|        cdb_data_reg         | Flip-flop |  32   |  Y  | Y  | None  | Sync  | N  | 205  |
+|        cdb_addr_reg         | Flip-flop |  32   |  Y  | Y  | None  | Sync  | N  | 205  |
+|        cdb_rmask_reg        | Flip-flop |   4   |  Y  | Y  | None  | Sync  | N  | 205  |
+|      cdb_raw_rdata_reg      | Flip-flop |  32   |  Y  | Y  | None  | Sync  | N  | 205  |
+==========================================================================================
+Statistics for MUX_OPs
+===========================================================
+|   block name/line     | Inputs | Outputs | # sel inputs |
+===========================================================
+| load_queue_DEPTH8/187 |   8    |   41    |      3       |
+| load_queue_DEPTH8/241 |   8    |   384   |      3       |
+| load_queue_DEPTH8/241 |   8    |    5    |      3       |
+| load_queue_DEPTH8/275 |   8    |    2    |      3       |
+| load_queue_DEPTH8/275 |   8    |    3    |      3       |
+| load_queue_DEPTH8/317 |   8    |    1    |      3       |
+===========================================================
+Presto compilation completed successfully. (load_queue_DEPTH8)
+Module: load_queue_DEPTH8, Ports: 940, Input: 444, Output: 496, Inout: 0
+Module: load_queue_DEPTH8, Registers: 3565, Async set/reset: 0, Sync set/reset: 3565
+Information: Module report end. (ELAB-965)
+Information: Building the design 'store_queue' instantiated from design 'cpu' with
+	the parameters "DEPTH=8". (HDL-193)
+
+Statistics for case statements in always block in file
+	'/home/seanms4/ece411/mp_ooo/rtl/store_queue.sv'
+============================================================
+|    Line    |  full/ parallel  |      block location      |
+============================================================
+|    311     |    user/user     | always block at line 190 |
+============================================================
+
+Inferred memory devices in process in routine 'store_queue_DEPTH8' in file
+	 /home/seanms4/ece411/mp_ooo/rtl/store_queue.sv'.
+===========================================================================================
+|        Register Name         |   Type    | Width | Bus | MB |  Set  | Reset | ST | Line |
+===========================================================================================
+|           head_reg           | Flip-flop |   3   |  Y  | Y  | None  | Sync  | N  | 190  |
+|           tail_reg           | Flip-flop |   3   |  Y  | Y  | None  | Sync  | N  | 190  |
+|          count_reg           | Flip-flop |   4   |  Y  | Y  | None  | Sync  | N  | 190  |
+|       pending_idx_reg        | Flip-flop |   3   |  Y  | Y  | None  | Sync  | N  | 190  |
+| store_queue_pending_resp_reg | Flip-flop |   1   |  N  | N  | None  | Sync  | N  | 190  |
+|            sq_reg            | Flip-flop |  624  |  Y  | Y  | None  | Sync  | N  | 190  |
+===========================================================================================
+Statistics for MUX_OPs
+============================================================
+|    block name/line     | Inputs | Outputs | # sel inputs |
+============================================================
+| store_queue_DEPTH8/91  |   8    |   75    |      3       |
+| store_queue_DEPTH8/91  |   8    |   75    |      3       |
+| store_queue_DEPTH8/91  |   8    |   75    |      3       |
+| store_queue_DEPTH8/91  |   8    |   75    |      3       |
+| store_queue_DEPTH8/91  |   8    |   75    |      3       |
+| store_queue_DEPTH8/91  |   8    |   75    |      3       |
+| store_queue_DEPTH8/91  |   8    |   75    |      3       |
+| store_queue_DEPTH8/91  |   8    |   75    |      3       |
+| store_queue_DEPTH8/156 |   8    |   73    |      3       |
+| store_queue_DEPTH8/167 |   8    |   69    |      3       |
+| store_queue_DEPTH8/215 |   8    |    7    |      3       |
+| store_queue_DEPTH8/215 |   8    |    7    |      3       |
+| store_queue_DEPTH8/215 |   8    |    7    |      3       |
+| store_queue_DEPTH8/215 |   8    |    7    |      3       |
+| store_queue_DEPTH8/215 |   8    |    7    |      3       |
+| store_queue_DEPTH8/215 |   8    |    7    |      3       |
+| store_queue_DEPTH8/215 |   8    |    7    |      3       |
+| store_queue_DEPTH8/215 |   8    |    7    |      3       |
+| store_queue_DEPTH8/275 |   8    |    1    |      3       |
+| store_queue_DEPTH8/285 |   8    |    1    |      3       |
+| store_queue_DEPTH8/294 |   8    |    1    |      3       |
+============================================================
+Presto compilation completed successfully. (store_queue_DEPTH8)
+Module: store_queue_DEPTH8, Ports: 330, Input: 152, Output: 178, Inout: 0
+Module: store_queue_DEPTH8, Registers: 638, Async set/reset: 0, Sync set/reset: 638
+Information: Module report end. (ELAB-965)
+Information: Building the design 'rrat'. (HDL-193)
+
+Inferred memory devices in process in routine 'rrat' in file
+	 /home/seanms4/ece411/mp_ooo/rtl/ooo_designparts/rrat.sv'.
+==================================================================================
+|    Register Name    |   Type    | Width | Bus | MB |  Set  | Reset | ST | Line |
+==================================================================================
+|    map_table_reg    | Flip-flop |  192  |  Y  | Y  | Sync  | Sync  | N  |  25  |
+==================================================================================
+Presto compilation completed successfully. (rrat)
+Module: rrat, Ports: 206, Input: 14, Output: 192, Inout: 0
+Module: rrat, Registers: 192, Async set/reset: 0, Sync set/reset: 186
+Information: Module report end. (ELAB-965)
+Information: Building the design 'rename_dispatch'. (HDL-193)
+Presto compilation completed successfully. (rename_dispatch)
+Module: rename_dispatch, Ports: 1030, Input: 633, Output: 397, Inout: 0
+Module: rename_dispatch, Registers: 0, Async set/reset: 0, Sync set/reset: 0
+Information: Module report end. (ELAB-965)
+Information: Building the design 'dispatch_issue'. (HDL-193)
+Presto compilation completed successfully. (dispatch_issue)
+Module: dispatch_issue, Ports: 572, Input: 328, Output: 244, Inout: 0
+Module: dispatch_issue, Registers: 0, Async set/reset: 0, Sync set/reset: 0
+Information: Module report end. (ELAB-965)
+Information: Building the design 'execute'. (HDL-193)
+
+Statistics for case statements in always block in file
+	'/home/seanms4/ece411/mp_ooo/rtl/ooo_pipeline_stages/execute.sv'
+============================================================
+|    Line    |  full/ parallel  |      block location      |
+============================================================
+|    212     |    user/user     | always block at line 209 |
+|    259     |    user/user     | always block at line 250 |
+|    349     |    auto/auto     | always block at line 318 |
+|    351     |    auto/auto     | always block at line 318 |
+|    375     |    auto/auto     | always block at line 318 |
+|    377     |    auto/auto     | always block at line 318 |
+|    404     |    user/user     | always block at line 318 |
+============================================================
+
+Inferred memory devices in process in routine 'execute' in file
+	 /home/seanms4/ece411/mp_ooo/rtl/ooo_pipeline_stages/execute.sv'.
+========================================================================================
+|       Register Name       |   Type    | Width | Bus | MB |  Set  | Reset | ST | Line |
+========================================================================================
+|       raw_rs1_q_reg       | Flip-flop |  32   |  Y  | Y  | None  | Sync  | N  | 228  |
+|      actual_pc_q_reg      | Flip-flop |  32   |  Y  | Y  | None  | Sync  | N  | 228  |
+| div_in_flight_rob_idx_reg | Flip-flop |   5   |  Y  | Y  | None  | Sync  | N  | 273  |
+|   alu_pending_stale_reg   | Flip-flop |   1   |  N  | N  | None  | Sync  | N  | 273  |
+|   mul_pending_stale_reg   | Flip-flop |   1   |  N  | N  | None  | Sync  | N  | 273  |
+|   div_pending_stale_reg   | Flip-flop |   1   |  N  | N  | None  | Sync  | N  | 273  |
+| alu_in_flight_rob_idx_reg | Flip-flop |   5   |  Y  | Y  | None  | Sync  | N  | 273  |
+| mul_in_flight_rob_idx_reg | Flip-flop |   5   |  Y  | Y  | None  | Sync  | N  | 273  |
+========================================================================================
+Information:  Complex logic will not be considered for set/reset inference. (ELAB-2008)
+Presto compilation completed successfully. (execute)
+Module: execute, Ports: 1953, Input: 409, Output: 1544, Inout: 0
+Module: execute, Registers: 82, Async set/reset: 0, Sync set/reset: 82
+Information: Module report end. (ELAB-965)
+Information: Building the design 'fsu_queue' instantiated from design 'cpu' with
+	the parameters PARAM_ID = 2. (HDL-193)
+
+Inferred memory devices in process in routine 'fsu_queue_length4_076242' in file
+	 /home/seanms4/ece411/mp_ooo/rtl/fsu_queue.sv'.
+==================================================================================
+|    Register Name    |   Type    | Width | Bus | MB |  Set  | Reset | ST | Line |
+==================================================================================
+|      head_reg       | Flip-flop |   3   |  Y  | Y  | None  | Sync  | N  |  44  |
+|      data_reg       | Flip-flop | 2380  |  Y  | Y  | None  | Sync  | N  |  44  |
+|      tail_reg       | Flip-flop |   3   |  Y  | Y  | None  | Sync  | N  |  44  |
+==================================================================================
+Statistics for MUX_OPs
+=================================================================
+|      block name/line        | Inputs | Outputs | # sel inputs |
+=================================================================
+| fsu_queue_length4_076242/40 |   4    |   595   |      2       |
+| fsu_queue_length4_076242/81 |   4    |   595   |      2       |
+| fsu_queue_length4_076242/81 |   4    |   595   |      2       |
+| fsu_queue_length4_076242/81 |   4    |   595   |      2       |
+=================================================================
+Presto compilation completed successfully. (fsu_queue_length4_076242)
+Module: fsu_queue_length4_076242, Ports: 1207, Input: 610, Output: 597, Inout: 0
+Module: fsu_queue_length4_076242, Registers: 2386, Async set/reset: 0, Sync set/reset: 2386
+Information: Module report end. (ELAB-965)
+Information: Building the design 'writeback'. (HDL-193)
+
+Statistics for case statements in always block in file
+	'/home/seanms4/ece411/mp_ooo/rtl/ooo_pipeline_stages/writeback.sv'
+===========================================================
+|    Line    |  full/ parallel  |      block location     |
+===========================================================
+|     45     |    user/user     | always block at line 40 |
+|     50     |    user/user     | always block at line 40 |
+===========================================================
+Presto compilation completed successfully. (writeback)
+Module: writeback, Ports: 628, Input: 595, Output: 33, Inout: 0
+Module: writeback, Registers: 0, Async set/reset: 0, Sync set/reset: 0
+Information: Module report end. (ELAB-965)
+Information: Building the design 'prf'. (HDL-193)
+
+Inferred memory devices in process in routine 'prf' in file
+	 /home/seanms4/ece411/mp_ooo/rtl/ooo_designparts/prf.sv'.
+==================================================================================
+|    Register Name    |   Type    | Width | Bus | MB |  Set  | Reset | ST | Line |
+==================================================================================
+|      ready_reg      | Flip-flop |  62   |  Y  | Y  | Sync  | Sync  | N  |  36  |
+|      data_reg       | Flip-flop | 2048  |  Y  | Y  | None  | Sync  | N  |  36  |
+==================================================================================
+Statistics for MUX_OPs
+======================================================
+| block name/line  | Inputs | Outputs | # sel inputs |
+======================================================
+|      prf/90      |   64   |   32    |      6       |
+|      prf/97      |   64   |   32    |      6       |
+======================================================
+Presto compilation completed successfully. (prf)
+Module: prf, Ports: 467, Input: 339, Output: 128, Inout: 0
+Module: prf, Registers: 2112, Async set/reset: 0, Sync set/reset: 2079
+Information: Module report end. (ELAB-965)
+Information: Building the design 'adapter'. (HDL-193)
+
+Statistics for case statements in always block in file
+	'/home/seanms4/ece411/mp_ooo/rtl/cache/adapter.sv'
+===========================================================
+|    Line    |  full/ parallel  |      block location     |
+===========================================================
+|     53     |    user/user     | always block at line 44 |
+===========================================================
+
+Inferred memory devices in process in routine 'adapter' in file
+	 /home/seanms4/ece411/mp_ooo/rtl/cache/adapter.sv'.
+==================================================================================
+|    Register Name    |   Type    | Width | Bus | MB |  Set  | Reset | ST | Line |
+==================================================================================
+|   rdata_buf_q_reg   | Flip-flop |  192  |  Y  | Y  | None  | Sync  | N  |  32  |
+|      state_reg      | Flip-flop |   3   |  Y  | Y  | None  | Sync  | N  |  32  |
+==================================================================================
+Presto compilation completed successfully. (adapter)
+Module: adapter, Ports: 713, Input: 358, Output: 355, Inout: 0
+Module: adapter, Registers: 195, Async set/reset: 0, Sync set/reset: 195
+Information: Module report end. (ELAB-965)
+Information: Building the design 'cache'. (HDL-193)
+
+Statistics for case statements in always block in file
+	'/home/seanms4/ece411/mp_ooo/rtl/cache/cache.sv'
+============================================================
+|    Line    |  full/ parallel  |      block location      |
+============================================================
+|     88     |    user/user     | always block at line 86  |
+|     99     |    user/user     | always block at line 97  |
+|    227     |    user/user     | always block at line 209 |
+============================================================
+
+Inferred memory devices in process in routine 'cache' in file
+	 /home/seanms4/ece411/mp_ooo/rtl/cache/cache.sv'.
+==================================================================================
+|    Register Name    |   Type    | Width | Bus | MB |  Set  | Reset | ST | Line |
+==================================================================================
+|      state_reg      | Flip-flop |   2   |  Y  | Y  | None  | Sync  | N  | 189  |
+|  pipeline_reg_reg   | Flip-flop |  349  |  Y  | Y  | None  | Sync  | N  | 189  |
+==================================================================================
+Statistics for MUX_OPs
+======================================================
+| block name/line  | Inputs | Outputs | # sel inputs |
+======================================================
+|    cache/202     |   4    |   256   |      2       |
+|    cache/203     |   4    |   23    |      2       |
+|    cache/236     |   4    |   256   |      2       |
+|    cache/253     |   4    |    1    |      2       |
+======================================================
+Presto compilation completed successfully. (cache)
+Module: cache, Ports: 655, Input: 331, Output: 324, Inout: 0
+Module: cache, Registers: 351, Async set/reset: 0, Sync set/reset: 351
+Information: Module report end. (ELAB-965)
+Information: Building the design 'instruction_queue'. (HDL-193)
+
+Inferred memory devices in process in routine 'instruction_queue' in file
+	 /home/seanms4/ece411/mp_ooo/rtl/ooo_designparts/instruction_queue.sv'.
+==================================================================================
+|    Register Name    |   Type    | Width | Bus | MB |  Set  | Reset | ST | Line |
+==================================================================================
+|      data_reg       | Flip-flop | 1032  |  Y  | Y  | None  | Sync  | N  |  40  |
+|      tail_reg       | Flip-flop |   4   |  Y  | Y  | None  | Sync  | N  |  40  |
+|      head_reg       | Flip-flop |   4   |  Y  | Y  | None  | Sync  | N  |  40  |
+==================================================================================
+Statistics for MUX_OPs
+==========================================================
+|   block name/line    | Inputs | Outputs | # sel inputs |
+==========================================================
+| instruction_queue/37 |   8    |   129   |      3       |
+==========================================================
+Presto compilation completed successfully. (instruction_queue)
+Module: instruction_queue, Ports: 265, Input: 134, Output: 131, Inout: 0
+Module: instruction_queue, Registers: 1040, Async set/reset: 0, Sync set/reset: 1040
+Information: Module report end. (ELAB-965)
+Information: Building the design 'rat'. (HDL-193)
+
+Inferred memory devices in process in routine 'rat' in file
+	 /home/seanms4/ece411/mp_ooo/rtl/ooo_designparts/rat.sv'.
+==================================================================================
+|    Register Name    |   Type    | Width | Bus | MB |  Set  | Reset | ST | Line |
+==================================================================================
+|      data_reg       | Flip-flop |  192  |  Y  | Y  | Sync  | Sync  | N  |  51  |
+==================================================================================
+Statistics for MUX_OPs
+======================================================
+| block name/line  | Inputs | Outputs | # sel inputs |
+======================================================
+|      rat/35      |   32   |    6    |      5       |
+|      rat/41      |   32   |    6    |      5       |
+|      rat/47      |   32   |    6    |      5       |
+======================================================
+Presto compilation completed successfully. (rat)
+Module: rat, Ports: 235, Input: 217, Output: 18, Inout: 0
+Module: rat, Registers: 192, Async set/reset: 0, Sync set/reset: 186
+Information: Module report end. (ELAB-965)
+Information: Building the design 'free_list'. (HDL-193)
+
+Inferred memory devices in process in routine 'free_list' in file
+	 /home/seanms4/ece411/mp_ooo/rtl/ooo_designparts/freelist.sv'.
+==================================================================================
+|    Register Name    |   Type    | Width | Bus | MB |  Set  | Reset | ST | Line |
+==================================================================================
+|      head_reg       | Flip-flop |   5   |  Y  | Y  | Sync  | Sync  | N  |  40  |
+|      tail_reg       | Flip-flop |   5   |  Y  | Y  | Sync  | Sync  | N  |  40  |
+|      data_reg       | Flip-flop |  384  |  Y  | Y  | Sync  | Sync  | N  |  40  |
+==================================================================================
+Statistics for MUX_OPs
+======================================================
+| block name/line  | Inputs | Outputs | # sel inputs |
+======================================================
+|   free_list/36   |   64   |    6    |      6       |
+======================================================
+Presto compilation completed successfully. (free_list)
+Module: free_list, Ports: 83, Input: 75, Output: 8, Inout: 0
+Module: free_list, Registers: 398, Async set/reset: 0, Sync set/reset: 399
+Information: Module report end. (ELAB-965)
+Module: free_list, Elapsed Time: 00:00:05, CPU Time: 00:00:06, Total Mem: 770.49 MB, Mem: 184.00 MB, Time: Fri Jul 17 20:17:54 2026
+Information: Building the design 'rob' instantiated from design 'rename_dispatch' with
+	the parameters "length=32". (HDL-193)
+
+Inferred memory devices in process in routine 'rob_length32' in file
+	 /home/seanms4/ece411/mp_ooo/rtl/ooo_designparts/rob.sv'.
+==================================================================================
+|    Register Name    |   Type    | Width | Bus | MB |  Set  | Reset | ST | Line |
+==================================================================================
+|      tail_reg       | Flip-flop |   6   |  Y  | Y  | None  | Sync  | N  | 141  |
+|      data_reg       | Flip-flop | 11648 |  Y  | Y  | None  | Sync  | N  | 141  |
+|      head_reg       | Flip-flop |   6   |  Y  | Y  | None  | Sync  | N  | 141  |
+==================================================================================
+Statistics for MUX_OPs
+======================================================
+| block name/line  | Inputs | Outputs | # sel inputs |
+======================================================
+| rob_length32/53  |   32   |    2    |      5       |
+| rob_length32/84  |   32   |   12    |      5       |
+| rob_length32/84  |   32   |   12    |      5       |
+| rob_length32/84  |   32   |   12    |      5       |
+| rob_length32/84  |   32   |   12    |      5       |
+| rob_length32/84  |   32   |   12    |      5       |
+| rob_length32/84  |   32   |   12    |      5       |
+| rob_length32/84  |   32   |   12    |      5       |
+| rob_length32/84  |   32   |   12    |      5       |
+| rob_length32/84  |   32   |   12    |      5       |
+| rob_length32/84  |   32   |   12    |      5       |
+| rob_length32/84  |   32   |   12    |      5       |
+| rob_length32/84  |   32   |   12    |      5       |
+| rob_length32/84  |   32   |   12    |      5       |
+| rob_length32/84  |   32   |   12    |      5       |
+| rob_length32/84  |   32   |   12    |      5       |
+| rob_length32/84  |   32   |   12    |      5       |
+| rob_length32/84  |   32   |   12    |      5       |
+| rob_length32/84  |   32   |   12    |      5       |
+| rob_length32/84  |   32   |   12    |      5       |
+| rob_length32/84  |   32   |   12    |      5       |
+| rob_length32/84  |   32   |   12    |      5       |
+| rob_length32/84  |   32   |   12    |      5       |
+| rob_length32/84  |   32   |   12    |      5       |
+| rob_length32/84  |   32   |   12    |      5       |
+| rob_length32/84  |   32   |   12    |      5       |
+| rob_length32/84  |   32   |   12    |      5       |
+| rob_length32/84  |   32   |   12    |      5       |
+| rob_length32/84  |   32   |   12    |      5       |
+| rob_length32/84  |   32   |   12    |      5       |
+| rob_length32/84  |   32   |   12    |      5       |
+| rob_length32/84  |   32   |   12    |      5       |
+| rob_length32/84  |   32   |   12    |      5       |
+| rob_length32/95  |   32   |    7    |      5       |
+| rob_length32/95  |   32   |    7    |      5       |
+| rob_length32/95  |   32   |    7    |      5       |
+| rob_length32/95  |   32   |    7    |      5       |
+| rob_length32/95  |   32   |    7    |      5       |
+| rob_length32/95  |   32   |    7    |      5       |
+| rob_length32/95  |   32   |    7    |      5       |
+| rob_length32/95  |   32   |    7    |      5       |
+| rob_length32/95  |   32   |    7    |      5       |
+| rob_length32/95  |   32   |    7    |      5       |
+| rob_length32/95  |   32   |    7    |      5       |
+| rob_length32/95  |   32   |    7    |      5       |
+| rob_length32/95  |   32   |    7    |      5       |
+| rob_length32/95  |   32   |    7    |      5       |
+| rob_length32/95  |   32   |    7    |      5       |
+| rob_length32/95  |   32   |    7    |      5       |
+| rob_length32/95  |   32   |    7    |      5       |
+| rob_length32/95  |   32   |    7    |      5       |
+| rob_length32/95  |   32   |    7    |      5       |
+| rob_length32/95  |   32   |    7    |      5       |
+| rob_length32/95  |   32   |    7    |      5       |
+| rob_length32/95  |   32   |    7    |      5       |
+| rob_length32/95  |   32   |    7    |      5       |
+| rob_length32/95  |   32   |    7    |      5       |
+| rob_length32/95  |   32   |    7    |      5       |
+| rob_length32/95  |   32   |    7    |      5       |
+| rob_length32/95  |   32   |    7    |      5       |
+| rob_length32/95  |   32   |    7    |      5       |
+| rob_length32/95  |   32   |    7    |      5       |
+| rob_length32/95  |   32   |    7    |      5       |
+| rob_length32/95  |   32   |    7    |      5       |
+| rob_length32/95  |   32   |    7    |      5       |
+| rob_length32/106 |   32   |   364   |      5       |
+| rob_length32/133 |   32   |   12    |      5       |
+| rob_length32/133 |   32   |   12    |      5       |
+| rob_length32/133 |   32   |   12    |      5       |
+| rob_length32/133 |   32   |   12    |      5       |
+| rob_length32/133 |   32   |   12    |      5       |
+| rob_length32/133 |   32   |   12    |      5       |
+| rob_length32/133 |   32   |   12    |      5       |
+| rob_length32/133 |   32   |   12    |      5       |
+| rob_length32/133 |   32   |   12    |      5       |
+| rob_length32/133 |   32   |   12    |      5       |
+| rob_length32/133 |   32   |   12    |      5       |
+| rob_length32/133 |   32   |   12    |      5       |
+| rob_length32/133 |   32   |   12    |      5       |
+| rob_length32/133 |   32   |   12    |      5       |
+| rob_length32/133 |   32   |   12    |      5       |
+| rob_length32/133 |   32   |   12    |      5       |
+| rob_length32/133 |   32   |   12    |      5       |
+| rob_length32/133 |   32   |   12    |      5       |
+| rob_length32/133 |   32   |   12    |      5       |
+| rob_length32/133 |   32   |   12    |      5       |
+| rob_length32/133 |   32   |   12    |      5       |
+| rob_length32/133 |   32   |   12    |      5       |
+| rob_length32/133 |   32   |   12    |      5       |
+| rob_length32/133 |   32   |   12    |      5       |
+| rob_length32/133 |   32   |   12    |      5       |
+| rob_length32/133 |   32   |   12    |      5       |
+| rob_length32/133 |   32   |   12    |      5       |
+| rob_length32/133 |   32   |   12    |      5       |
+| rob_length32/133 |   32   |   12    |      5       |
+| rob_length32/133 |   32   |   12    |      5       |
+| rob_length32/133 |   32   |   12    |      5       |
+======================================================
+Presto compilation completed successfully. (rob_length32)
+Module: rob_length32, Ports: 1512, Input: 879, Output: 633, Inout: 0
+Module: rob_length32, Registers: 11660, Async set/reset: 0, Sync set/reset: 11660
+Information: Module report end. (ELAB-965)
+Module: rob_length32, Elapsed Time: 00:00:15, CPU Time: 00:00:15, Total Mem: 1.23 GB, Mem: 426.48 MB, Time: Fri Jul 17 20:18:12 2026
+Information: Building the design 'rs'. (HDL-193)
+
+Statistics for case statements in always block in file
+	'/home/seanms4/ece411/mp_ooo/rtl/ooo_designparts/rs.sv'
+============================================================
+|    Line    |  full/ parallel  |      block location      |
+============================================================
+|    205     |    user/user     | always block at line 193 |
+============================================================
+
+Inferred memory devices in process in routine 'rs' in file
+	 /home/seanms4/ece411/mp_ooo/rtl/ooo_designparts/rs.sv'.
+==================================================================================
+|    Register Name    |   Type    | Width | Bus | MB |  Set  | Reset | ST | Line |
+==================================================================================
+|      data_reg       | Flip-flop | 7648  |  Y  | Y  | None  | Sync  | N  | 296  |
+==================================================================================
+Statistics for MUX_OPs
+======================================================
+| block name/line  | Inputs | Outputs | # sel inputs |
+======================================================
+|      rs/247      |   32   |   239   |      5       |
+|      rs/312      |   64   |    1    |      6       |
+|      rs/324      |   64   |    1    |      6       |
+|      rs/312      |   64   |    1    |      6       |
+|      rs/324      |   64   |    1    |      6       |
+|      rs/312      |   64   |    1    |      6       |
+|      rs/324      |   64   |    1    |      6       |
+|      rs/312      |   64   |    1    |      6       |
+|      rs/324      |   64   |    1    |      6       |
+|      rs/312      |   64   |    1    |      6       |
+|      rs/324      |   64   |    1    |      6       |
+|      rs/312      |   64   |    1    |      6       |
+|      rs/324      |   64   |    1    |      6       |
+|      rs/312      |   64   |    1    |      6       |
+|      rs/324      |   64   |    1    |      6       |
+|      rs/312      |   64   |    1    |      6       |
+|      rs/324      |   64   |    1    |      6       |
+|      rs/312      |   64   |    1    |      6       |
+|      rs/324      |   64   |    1    |      6       |
+|      rs/312      |   64   |    1    |      6       |
+|      rs/324      |   64   |    1    |      6       |
+|      rs/312      |   64   |    1    |      6       |
+|      rs/324      |   64   |    1    |      6       |
+|      rs/312      |   64   |    1    |      6       |
+|      rs/324      |   64   |    1    |      6       |
+|      rs/312      |   64   |    1    |      6       |
+|      rs/324      |   64   |    1    |      6       |
+|      rs/312      |   64   |    1    |      6       |
+|      rs/324      |   64   |    1    |      6       |
+|      rs/312      |   64   |    1    |      6       |
+|      rs/324      |   64   |    1    |      6       |
+|      rs/312      |   64   |    1    |      6       |
+|      rs/324      |   64   |    1    |      6       |
+|      rs/312      |   64   |    1    |      6       |
+|      rs/324      |   64   |    1    |      6       |
+|      rs/312      |   64   |    1    |      6       |
+|      rs/324      |   64   |    1    |      6       |
+|      rs/312      |   64   |    1    |      6       |
+|      rs/324      |   64   |    1    |      6       |
+|      rs/312      |   64   |    1    |      6       |
+|      rs/324      |   64   |    1    |      6       |
+|      rs/312      |   64   |    1    |      6       |
+|      rs/324      |   64   |    1    |      6       |
+|      rs/312      |   64   |    1    |      6       |
+|      rs/324      |   64   |    1    |      6       |
+|      rs/312      |   64   |    1    |      6       |
+|      rs/324      |   64   |    1    |      6       |
+|      rs/312      |   64   |    1    |      6       |
+|      rs/324      |   64   |    1    |      6       |
+|      rs/312      |   64   |    1    |      6       |
+|      rs/324      |   64   |    1    |      6       |
+|      rs/312      |   64   |    1    |      6       |
+|      rs/324      |   64   |    1    |      6       |
+|      rs/312      |   64   |    1    |      6       |
+|      rs/324      |   64   |    1    |      6       |
+|      rs/312      |   64   |    1    |      6       |
+|      rs/324      |   64   |    1    |      6       |
+|      rs/312      |   64   |    1    |      6       |
+|      rs/324      |   64   |    1    |      6       |
+|      rs/312      |   64   |    1    |      6       |
+|      rs/324      |   64   |    1    |      6       |
+|      rs/312      |   64   |    1    |      6       |
+|      rs/324      |   64   |    1    |      6       |
+|      rs/312      |   64   |    1    |      6       |
+|      rs/324      |   64   |    1    |      6       |
+======================================================
+Presto compilation completed successfully. (rs)
+Module: rs, Ports: 572, Input: 328, Output: 244, Inout: 0
+Module: rs, Registers: 7648, Async set/reset: 0, Sync set/reset: 7648
+Information: Module report end. (ELAB-965)
+Information: Building the design 'alu'. (HDL-193)
+
+Statistics for case statements in always block in file
+	'/home/seanms4/ece411/mp_ooo/rtl/FSUs/alu.sv'
+===========================================================
+|    Line    |  full/ parallel  |      block location     |
+===========================================================
+|     60     |    user/user     | always block at line 57 |
+===========================================================
+
+Inferred memory devices in process in routine 'alu' in file
+	 /home/seanms4/ece411/mp_ooo/rtl/FSUs/alu.sv'.
+==================================================================================
+|    Register Name    |   Type    | Width | Bus | MB |  Set  | Reset | ST | Line |
+==================================================================================
+|     alu_reg_reg     | Flip-flop |  595  |  Y  | Y  | None  | Sync  | N  |  77  |
+|      busy_reg       | Flip-flop |   1   |  N  | N  | None  | Sync  | N  |  77  |
+|  result_valid_reg   | Flip-flop |   1   |  N  | N  | None  | Sync  | N  |  77  |
+==================================================================================
+Information:  Complex logic will not be considered for set/reset inference. (ELAB-2008)
+Presto compilation completed successfully. (alu)
+Module: alu, Ports: 1049, Input: 451, Output: 598, Inout: 0
+Module: alu, Registers: 597, Async set/reset: 0, Sync set/reset: 597
+Information: Module report end. (ELAB-965)
+Information: Building the design 'mul'. (HDL-193)
+
+Inferred memory devices in process in routine 'mul' in file
+	 /home/seanms4/ece411/mp_ooo/rtl/FSUs/mul.sv'.
+==================================================================================
+|    Register Name    |   Type    | Width | Bus | MB |  Set  | Reset | ST | Line |
+==================================================================================
+|    pipe_meta_reg    | Flip-flop | 1587  |  Y  | Y  | None  | Sync  | N  | 114  |
+==================================================================================
+Presto compilation completed successfully. (mul)
+Module: mul, Ports: 1081, Input: 482, Output: 599, Inout: 0
+Module: mul, Registers: 1587, Async set/reset: 0, Sync set/reset: 1587
+Information: Module report end. (ELAB-965)
+Information: Building the design 'div'. (HDL-193)
+
+Inferred memory devices in process in routine 'div' in file
+	 /home/seanms4/ece411/mp_ooo/rtl/FSUs/div.sv'.
+==================================================================================
+|    Register Name    |   Type    | Width | Bus | MB |  Set  | Reset | ST | Line |
+==================================================================================
+|    dw_start_reg     | Flip-flop |   1   |  N  | N  | None  | None  | N  |  68  |
+|  signed_op_reg_reg  | Flip-flop |   1   |  N  | N  | None  | Sync  | N  | 114  |
+|      busy_reg       | Flip-flop |   1   |  N  | N  | None  | Sync  | N  | 114  |
+|  result_valid_reg   | Flip-flop |   1   |  N  | N  | None  | Sync  | N  | 114  |
+|    complete_reg     | Flip-flop |   1   |  N  | N  | None  | Sync  | N  | 114  |
+|     div_reg_reg     | Flip-flop |  595  |  Y  | Y  | None  | Sync  | N  | 114  |
+|      a_reg_reg      | Flip-flop |  33   |  Y  | Y  | None  | Sync  | N  | 114  |
+|      b_reg_reg      | Flip-flop |  33   |  Y  | Y  | None  | Sync  | N  | 114  |
+==================================================================================
+Information:  Complex logic will not be considered for set/reset inference. (ELAB-2008)
+Presto compilation completed successfully. (div)
+Module: div, Ports: 1080, Input: 482, Output: 598, Inout: 0
+Module: div, Registers: 666, Async set/reset: 0, Sync set/reset: 665
+Information: Module report end. (ELAB-965)
+Information: Building the design 'sp_ff_array'. (HDL-193)
+
+Inferred memory devices in process in routine 'sp_ff_array' in file
+	 /home/seanms4/ece411/mp_ooo/rtl/pkg/sp_ff_array.sv'.
+==================================================================================
+|    Register Name    |   Type    | Width | Bus | MB |  Set  | Reset | ST | Line |
+==================================================================================
+|    din0_reg_reg     | Flip-flop |   1   |  N  | N  | None  | Sync  | N  |  24  |
+|    web0_reg_reg     | Flip-flop |   1   |  N  | N  | Sync  | None  | N  |  24  |
+|    addr0_reg_reg    | Flip-flop |   4   |  Y  | Y  | None  | Sync  | N  |  24  |
+|    addr1_reg_reg    | Flip-flop |   4   |  Y  | Y  | None  | Sync  | N  |  24  |
+| internal_array_reg  | Flip-flop |  16   |  Y  | Y  | None  | Sync  | N  |  40  |
+==================================================================================
+Statistics for MUX_OPs
+======================================================
+| block name/line  | Inputs | Outputs | # sel inputs |
+======================================================
+|  sp_ff_array/56  |   16   |    1    |      4       |
+======================================================
+Presto compilation completed successfully. (sp_ff_array)
+Module: sp_ff_array, Ports: 14, Input: 13, Output: 1, Inout: 0
+Module: sp_ff_array, Registers: 26, Async set/reset: 0, Sync set/reset: 26
+Information: Module report end. (ELAB-965)
+Information: Building the design 'sp_ff_array' instantiated from design 'cache' with
+	the parameters "WIDTH=3". (HDL-193)
+
+Inferred memory devices in process in routine 'sp_ff_array_WIDTH3' in file
+	 /home/seanms4/ece411/mp_ooo/rtl/pkg/sp_ff_array.sv'.
+==================================================================================
+|    Register Name    |   Type    | Width | Bus | MB |  Set  | Reset | ST | Line |
+==================================================================================
+|    din0_reg_reg     | Flip-flop |   3   |  Y  | Y  | None  | Sync  | N  |  24  |
+|    web0_reg_reg     | Flip-flop |   1   |  N  | N  | Sync  | None  | N  |  24  |
+|    addr0_reg_reg    | Flip-flop |   4   |  Y  | Y  | None  | Sync  | N  |  24  |
+|    addr1_reg_reg    | Flip-flop |   4   |  Y  | Y  | None  | Sync  | N  |  24  |
+| internal_array_reg  | Flip-flop |  48   |  Y  | Y  | None  | Sync  | N  |  40  |
+==================================================================================
+Statistics for MUX_OPs
+===========================================================
+|   block name/line     | Inputs | Outputs | # sel inputs |
+===========================================================
+| sp_ff_array_WIDTH3/56 |   16   |    3    |      4       |
+===========================================================
+Presto compilation completed successfully. (sp_ff_array_WIDTH3)
+Module: sp_ff_array_WIDTH3, Ports: 18, Input: 15, Output: 3, Inout: 0
+Module: sp_ff_array_WIDTH3, Registers: 60, Async set/reset: 0, Sync set/reset: 60
+Information: Module report end. (ELAB-965)
+    elaborate $design_toplevel : 1
+Current design is 'cpu'.
+    current_design $design_toplevel : _sel1
+    change_names -rules verilog -hierarchy : 1
+ 
+****************************************
+check_design summary:
+Version:     W-2024.09
+Date:        Fri Jul 17 20:18:30 2026
+****************************************
+
+                   Name                                            Total
+--------------------------------------------------------------------------------
+No issues found.
+--------------------------------------------------------------------------------
+
+    check_design : 1
+    set_wire_load_model -name "5K_hvratio_1_1" : 1
+    set_wire_load_mode enclosed : 1
+    source "constraints.sdc" : 1
+
+  Linking design 'cpu'
+  Using the following designs and libraries:
+  --------------------------------------------------------------------------
+  * (26 designs)              /home/seanms4/ece411/mp_ooo/build/syn/top_tb/cpu.db, etc
+  NangateOpenCellLibrary (library)
+                              /class/ece411/freepdk-45nm/stdcells.db
+  dw_foundation.sldb (library)
+                              /software/Synopsys-2024_x86_64/syn/W-2024.09/libraries/syn/dw_foundation.sldb
+  mp_cache_data_array_TT_1p0V_25C_lib (library)
+                              /home/seanms4/ece411/mp_ooo/build/sram/mp_cache_data_array/mp_cache_data_array_TT_1p0V_25C_lib.db
+  mp_cache_tag_array_TT_1p0V_25C_lib (library)
+                              /home/seanms4/ece411/mp_ooo/build/sram/mp_cache_tag_array/mp_cache_tag_array_TT_1p0V_25C_lib.db
+
+    link : 1
+ : 
+# Synthesis
+try_wrapper {
+    eval $env(DC_COMPILE_CMD)
+    for {set i 0} {$i < $env(DC_COMPILE_ITER)} {incr i} {
+        eval $env(DC_COMPILE_CMD_INC)
+    }
+}
+ : 
+Information: Performing leakage power optimization. (PWR-850)
+CPU Load: 13%, Ram Free: 13 GB, Swap Free: 7 GB, Work Disk Free: 24 GB, Tmp Disk Free: 7 GB
+Alib files are up-to-date.
+Information: Running optimization using a maximum of 4 cores. (OPT-1500)
+Information: Evaluating DesignWare library utilization. (UISN-27)
+
+============================================================================
+| DesignWare Building Block Library  |         Version         | Available |
+============================================================================
+| Basic DW Building Blocks           | W-2024.09-DWBB_202409.0 |     *     |
+| Licensed DW Building Blocks        | W-2024.09-DWBB_202409.0 |     *     |
+============================================================================
+
+====================================================================================================
+| Flow Information                                                                                 |
+----------------------------------------------------------------------------------------------------
+| Flow         | Design Compiler WLM                                                               |
+| Command Line | compile_ultra -gate_clock                                                         |
+====================================================================================================
+| Design Information                                      | Value                                  |
+====================================================================================================
+| Number of Scenarios                                     | 0                                      |
+| Leaf Cell Count                                         | 156888                                 |
+| Number of User Hierarchies                              | 43                                     |
+| Sequential Cell Count                                   | 57807                                  |
+| Macro Count                                             | 0                                      |
+| Number of Power Domains                                 | 0                                      |
+| Number of Path Groups                                   | 2                                      |
+| Number of VT Class                                      | 0                                      |
+| Number of Clocks                                        | 1                                      |
+| Number of Dont Touch Cells                              | 35123                                  |
+| Number of Dont Touch Nets                               | 0                                      |
+| Number of Size Only Cells                               | 0                                      |
+| Design with UPF Data                                    | false                                  |
+====================================================================================================
+Information: Sequential output inversion is enabled.  SVF file must be used for formal verification. (OPT-1208)
+
+
+Information: Uniquified 2 instances of design 'adapter'. (OPT-1056)
+Information: Uniquified 2 instances of design 'cache'. (OPT-1056)
+Information: Uniquified 16 instances of design 'sp_ff_array'. (OPT-1056)
+Information: Uniquified 2 instances of design 'sp_ff_array_WIDTH3'. (OPT-1056)
+  Simplifying Design 'cpu'
+Information: Performing clock-gating with positive edge logic: 'integrated' and negative edge logic: 'or'. (PWR-1047)
+Information: propagating constant for register u_fetch/pc_reg_31_
+Information: propagating constant for register u_fetch/pc_reg_30_
+Information: propagating constant for register u_fetch/pc_reg_29_
+Information: propagating constant for register u_fetch/pc_reg_28_
+Information: propagating constant for register u_fetch/pc_reg_27_
+Information: propagating constant for register u_fetch/pc_reg_26_
+Information: propagating constant for register u_fetch/pc_reg_25_
+Information: propagating constant for register u_fetch/pc_reg_24_
+Information: propagating constant for register u_fetch/pc_reg_23_
+Information: propagating constant for register u_fetch/pc_reg_22_
+Information: propagating constant for register u_fetch/pc_reg_21_
+Information: propagating constant for register u_fetch/pc_reg_20_
+Information: propagating constant for register u_fetch/pc_reg_19_
+Information: propagating constant for register u_fetch/pc_reg_18_
+Information: propagating constant for register u_fetch/pc_reg_17_
+Information: propagating constant for register u_fetch/pc_reg_16_
+Information: propagating constant for register u_fetch/pc_reg_15_
+Information: propagating constant for register u_fetch/pc_reg_14_
+Information: propagating constant for register u_fetch/pc_reg_13_
+Information: propagating constant for register u_fetch/pc_reg_12_
+Information: propagating constant for register u_fetch/pc_reg_11_
+Information: propagating constant for register u_fetch/pc_reg_10_
+Information: propagating constant for register u_fetch/pc_reg_9_
+Information: propagating constant for register u_fetch/pc_reg_8_
+Information: propagating constant for register u_fetch/pc_reg_7_
+Information: propagating constant for register u_fetch/pc_reg_6_
+Information: propagating constant for register u_fetch/pc_reg_5_
+Information: propagating constant for register u_fetch/pc_reg_4_
+Information: propagating constant for register u_fetch/pc_reg_3_
+Information: propagating constant for register u_fetch/pc_reg_2_
+Information: propagating constant for register u_fetch/pc_reg_1_
+Information: propagating constant for register u_fetch/pc_reg_0_
+Information: propagating constant for register mem/d_cache/lru_array/din0_reg_reg_2_
+Information: propagating constant for register mem/d_cache/lru_array/din0_reg_reg_1_
+Information: propagating constant for register mem/d_cache/lru_array/din0_reg_reg_0_
+Information: propagating constant for register mem/d_cache/lru_array/web0_reg_reg
+Information: propagating constant for register mem/d_cache/lru_array/addr0_reg_reg_3_
+Information: propagating constant for register mem/d_cache/lru_array/addr0_reg_reg_2_
+Information: propagating constant for register mem/d_cache/lru_array/addr0_reg_reg_1_
+Information: propagating constant for register mem/d_cache/lru_array/addr0_reg_reg_0_
+Information: propagating constant for register mem/d_cache/lru_array/addr1_reg_reg_3_
+Information: propagating constant for register mem/d_cache/lru_array/addr1_reg_reg_2_
+Information: propagating constant for register mem/d_cache/lru_array/addr1_reg_reg_1_
+Information: propagating constant for register mem/d_cache/lru_array/addr1_reg_reg_0_
+Information: propagating constant for register mem/d_cache/arrays_3__dirty_array/din0_reg_reg_0_
+Information: propagating constant for register mem/d_cache/arrays_3__dirty_array/web0_reg_reg
+Information: propagating constant for register mem/d_cache/arrays_3__dirty_array/addr0_reg_reg_3_
+Information: propagating constant for register mem/d_cache/arrays_3__dirty_array/addr0_reg_reg_2_
+Information: propagating constant for register mem/d_cache/arrays_3__dirty_array/addr0_reg_reg_1_
+Information: propagating constant for register mem/d_cache/arrays_3__dirty_array/addr0_reg_reg_0_
+Information: propagating constant for register mem/d_cache/arrays_3__dirty_array/addr1_reg_reg_3_
+Information: propagating constant for register mem/d_cache/arrays_3__dirty_array/addr1_reg_reg_2_
+Information: propagating constant for register mem/d_cache/arrays_3__dirty_array/addr1_reg_reg_1_
+Information: propagating constant for register mem/d_cache/arrays_3__dirty_array/addr1_reg_reg_0_
+
+Loaded alib file '/class/ece411/freepdk-45nm/alib/alib-52/stdcells.db.alib'
+Module: DW01_NAND2, Ports: 3, Input: 2, Output: 1, Inout: 0
+Module: DW01_NAND2, Registers: 0, Async set/reset: 0, Sync set/reset: 0
+  Building model 'DW01_NAND2'
+Information: Ungrouping 25 of 1760 hierarchies before Pass 1 (OPT-775)
+CPU Load: 10%, Ram Free: 13 GB, Swap Free: 7 GB, Work Disk Free: 24 GB, Tmp Disk Free: 7 GB
+Information: State dependent leakage is now switched from on to off.
+
+  Beginning Pass 1 Mapping
+  ------------------------
+.................................
+  Processing 'rob_length32'
+Information: Added key list 'DesignWare' to design 'rob_length32'. (DDB-72)
+ Implement Synthetic for 'rob_length32'.
+  Processing 'tage_bp'
+Information: Added key list 'DesignWare' to design 'tage_bp'. (DDB-72)
+ Implement Synthetic for 'tage_bp'.
+  Processing 'free_list'
+Information: Added key list 'DesignWare' to design 'free_list'. (DDB-72)
+ Implement Synthetic for 'free_list'.
+  Processing 'cpu'
+Information: Added key list 'DesignWare' to design 'cpu'. (DDB-72)
+ Implement Synthetic for 'cpu'.
+  Processing 'rs'
+Information: Added key list 'DesignWare' to design 'rs'. (DDB-72)
+ Implement Synthetic for 'rs'.
+  Processing 'fsu_queue_length4_076242'
+Information: Added key list 'DesignWare' to design 'fsu_queue_length4_076242'. (DDB-72)
+ Implement Synthetic for 'fsu_queue_length4_076242'.
+  Processing 'load_queue_DEPTH8'
+Information: Added key list 'DesignWare' to design 'load_queue_DEPTH8'. (DDB-72)
+ Implement Synthetic for 'load_queue_DEPTH8'.
+  Processing 'prf'
+Information: Added key list 'DesignWare' to design 'prf'. (DDB-72)
+  Processing 'store_queue_DEPTH8'
+Information: Added key list 'DesignWare' to design 'store_queue_DEPTH8'. (DDB-72)
+ Implement Synthetic for 'store_queue_DEPTH8'.
+  Processing 'mul'
+ Implement Synthetic for 'mul'.
+Module: DW_mult_pipe_a_width33_b_width33_num_stages4_stall_mode1_rst_mode1_op_iso_mode0, Ports: 136, Input: 70, Output: 66, Inout: 0
+Module: DW_mult_pipe_a_width33_b_width33_num_stages4_stall_mode1_rst_mode1_op_iso_mode0, Registers: 201, Async set/reset: 201, Sync set/reset: 0
+  Processing 'mul_DW_mult_pipe_J10_0'
+Information: Added key list 'DesignWare' to design 'mul'. (DDB-72)
+  Processing 'cache_0'
+Information: Added key list 'DesignWare' to design 'cache_0'. (DDB-72)
+  Processing 'cache_1'
+Information: Added key list 'DesignWare' to design 'cache_1'. (DDB-72)
+  Processing 'execute'
+Information: Added key list 'DesignWare' to design 'execute'. (DDB-72)
+ Implement Synthetic for 'execute'.
+  Processing 'memory_arbitor'
+  Processing 'instruction_queue'
+Information: Added key list 'DesignWare' to design 'instruction_queue'. (DDB-72)
+  Processing 'div'
+ Implement Synthetic for 'div'.
+Module: DW_div_seq_a_width33_b_width33_tc_mode1_num_cyc10_rst_mode1_input_mode0_output_mode1_early_start0, Ports: 138, Input: 70, Output: 68, Inout: 0
+Module: DW_div_seq_a_width33_b_width33_tc_mode1_num_cyc10_rst_mode1_input_mode0_output_mode1_early_start0, Registers: 80, Async set/reset: 0, Sync set/reset: 80
+Module: DW_cntr_scnto_width5_count_to9_rst_mode1_dcod_mode0, Ports: 15, Input: 9, Output: 6, Inout: 0
+Module: DW_cntr_scnto_width5_count_to9_rst_mode1_dcod_mode0, Registers: 0, Async set/reset: 0, Sync set/reset: 0
+Module: DW_and_tree_width5, Ports: 6, Input: 5, Output: 1, Inout: 0
+Module: DW_and_tree_width5, Registers: 0, Async set/reset: 0, Sync set/reset: 0
+Module: DW01_absval_width33, Ports: 66, Input: 33, Output: 33, Inout: 0
+Module: DW01_absval_width33, Registers: 0, Async set/reset: 0, Sync set/reset: 0
+  Processing 'div_DW_div_seq_J16_0'
+  Processing 'div_DW01_absval_J16_0'
+  Processing 'div_DW_cntr_scnto_J16_0'
+Information: Added key list 'DesignWare' to design 'div'. (DDB-72)
+  Processing 'rename_dispatch'
+ Implement Synthetic for 'rename_dispatch'.
+  Processing 'fetch'
+ Implement Synthetic for 'fetch'.
+  Processing 'dispatch_issue'
+  Processing 'SNPS_CLOCK_GATE_HIGH_rrat_0'
+  Mapping integrated clock gating circuitry
+  Processing 'SNPS_CLOCK_GATE_HIGH_cpu_0'
+  Mapping integrated clock gating circuitry
+  Processing 'SNPS_CLOCK_GATE_HIGH_prf_0'
+  Mapping integrated clock gating circuitry
+  Processing 'SNPS_CLOCK_GATE_HIGH_fsu_queue_length4_076242_0'
+  Mapping integrated clock gating circuitry
+  Processing 'SNPS_CLOCK_GATE_HIGH_alu'
+  Mapping integrated clock gating circuitry
+  Processing 'SNPS_CLOCK_GATE_HIGH_execute_0'
+  Mapping integrated clock gating circuitry
+  Processing 'SNPS_CLOCK_GATE_HIGH_div_0'
+  Mapping integrated clock gating circuitry
+  Processing 'SNPS_CLOCK_GATE_HIGH_mul_0'
+  Mapping integrated clock gating circuitry
+  Processing 'SNPS_CLOCK_GATE_HIGH_rs_0'
+  Mapping integrated clock gating circuitry
+  Processing 'SNPS_CLOCK_GATE_HIGH_rat_0'
+  Mapping integrated clock gating circuitry
+  Processing 'SNPS_CLOCK_GATE_HIGH_rob_length32_0'
+  Mapping integrated clock gating circuitry
+  Processing 'SNPS_CLOCK_GATE_HIGH_free_list_0'
+  Mapping integrated clock gating circuitry
+  Processing 'SNPS_CLOCK_GATE_HIGH_store_queue_DEPTH8_0'
+  Mapping integrated clock gating circuitry
+  Processing 'SNPS_CLOCK_GATE_HIGH_load_queue_DEPTH8_0'
+  Mapping integrated clock gating circuitry
+  Processing 'SNPS_CLOCK_GATE_HIGH_instruction_queue_0'
+  Mapping integrated clock gating circuitry
+  Processing 'SNPS_CLOCK_GATE_HIGH_adapter_0_0'
+  Mapping integrated clock gating circuitry
+  Processing 'SNPS_CLOCK_GATE_HIGH_adapter_1_0'
+  Mapping integrated clock gating circuitry
+  Processing 'SNPS_CLOCK_GATE_HIGH_sp_ff_array_0_0'
+  Mapping integrated clock gating circuitry
+  Processing 'SNPS_CLOCK_GATE_HIGH_sp_ff_array_WIDTH3_0_0'
+  Mapping integrated clock gating circuitry
+  Processing 'SNPS_CLOCK_GATE_HIGH_cache_0_0'
+  Mapping integrated clock gating circuitry
+  Processing 'SNPS_CLOCK_GATE_HIGH_cache_1_0'
+  Mapping integrated clock gating circuitry
+  Processing 'SNPS_CLOCK_GATE_HIGH_tage_bp_0'
+  Mapping integrated clock gating circuitry
+CPU Load: 11%, Ram Free: 13 GB, Swap Free: 7 GB, Work Disk Free: 24 GB, Tmp Disk Free: 7 GB
+
+  Updating timing information
+Information: Updating design information... (UID-85)
+CGOPT MAP DEBUG: cgopt_ctxt.target_lib refresh required directly after link: FALSE
+
+                                  TOTAL                                                            
+   ELAPSED            WORST NEG   SETUP    DESIGN                              LEAKAGE   MIN DELAY 
+    TIME      AREA      SLACK     COST    RULE COST         ENDPOINT            POWER      COST    
+  --------- --------- --------- --------- --------- ------------------------- --------- -----------
+    0:07:41  625168.1 935990.75 1191865344.0 409206013.7                           9163336.0000      0.00  
+    0:07:41  625168.1 935990.75 1191865344.0 409206013.7                           9163336.0000      0.00  
+    0:07:48  625172.9 935990.75 1191865344.0 409178770.8                           9163508.0000      0.00  
+    0:07:50  625280.6 935990.75 1191862144.0 409178086.0                           9167384.0000      0.00  
+    0:07:51  625930.2 935990.75 1191862144.0 409176173.1                           9190751.0000      0.00  
+    0:07:55  626840.7 935990.75 1191862144.0 409197265.3                           9223505.0000      0.00  
+
+  Beginning Mapping Optimizations  (Ultra High effort)
+  -------------------------------
+Information: Added key list 'DesignWare' to design 'rob_length32_RSOP_12927'. (DDB-72)
+Information: Added key list 'DesignWare' to design 'fetch'. (DDB-72)
+Information: Added key list 'DesignWare' to design 'rename_dispatch'. (DDB-72)
+Information: Updating design information... (UID-85)
+..........
+Information: Ungrouping hierarchy mem 'memory_arbitor' #insts = 1967. (OPT-777)
+Information: Ungrouping hierarchy u_fetch 'fetch' #insts = 539. (OPT-777)
+Information: Ungrouping hierarchy u_rename_dispatch 'rename_dispatch' #insts = 1043. (OPT-777)
+Information: Ungrouping hierarchy u_dispatch_issue 'dispatch_issue' #insts = 0. (OPT-777)
+Information: Ungrouping hierarchy u_fetch/iq 'instruction_queue' #insts = 1998. (OPT-777)
+Information: Ungrouping hierarchy u_execute/u_mul 'mul' #insts = 678. (OPT-777)
+Information: Ungrouping hierarchy u_execute/u_div 'div' #insts = 551. (OPT-777)
+Information: Ungrouping hierarchy u_prf/C51965 'prf_MUX_OP_64_6_32' #insts = 1463. (OPT-777)
+Information: Ungrouping hierarchy u_prf/C51964 'prf_MUX_OP_64_6_32_2' #insts = 1463. (OPT-777)
+Information: Checking pipeline property of cell u_execute/u_mul/u_mult (design mul_DW_mult_pipe_J10_0). (RTDC-137)
+Information: cell u_execute/u_mul/u_mult (design mul_DW_mult_pipe_J10_0) is a pipeline. (RTDC-139)
+Information: Ungrouping hierarchy u_prf 'prf' #insts = 11293. (OPT-777)
+Information: Ungrouping hierarchy u_execute 'execute' #insts = 4626. (OPT-777)
+Module: DW_div_seq_a_width33_b_width33_tc_mode1_num_cyc10_rst_mode1_input_mode0_output_mode1_early_start0, Ports: 138, Input: 70, Output: 68, Inout: 0
+Module: DW_div_seq_a_width33_b_width33_tc_mode1_num_cyc10_rst_mode1_input_mode0_output_mode1_early_start0, Registers: 80, Async set/reset: 0, Sync set/reset: 80
+Module: DW_cntr_scnto_width5_count_to9_rst_mode1_dcod_mode0, Ports: 15, Input: 9, Output: 6, Inout: 0
+Module: DW_cntr_scnto_width5_count_to9_rst_mode1_dcod_mode0, Registers: 0, Async set/reset: 0, Sync set/reset: 0
+Module: DW_and_tree_width5, Ports: 6, Input: 5, Output: 1, Inout: 0
+Module: DW_and_tree_width5, Registers: 0, Async set/reset: 0, Sync set/reset: 0
+Module: DW01_NAND2, Ports: 3, Input: 2, Output: 1, Inout: 0
+Module: DW01_NAND2, Registers: 0, Async set/reset: 0, Sync set/reset: 0
+Module: DW_cntr_scnto_width5_count_to9_rst_mode1_dcod_mode0, Ports: 15, Input: 9, Output: 6, Inout: 0
+Module: DW_cntr_scnto_width5_count_to9_rst_mode1_dcod_mode0, Registers: 0, Async set/reset: 0, Sync set/reset: 0
+Module: DW01_absval_width33, Ports: 66, Input: 33, Output: 33, Inout: 0
+Module: DW01_absval_width33, Registers: 0, Async set/reset: 0, Sync set/reset: 0
+Module: DW_cntr_scnto_width5_count_to9_rst_mode1_dcod_mode0, Ports: 15, Input: 9, Output: 6, Inout: 0
+Module: DW_cntr_scnto_width5_count_to9_rst_mode1_dcod_mode0, Registers: 0, Async set/reset: 0, Sync set/reset: 0
+Module: DW_cntr_scnto_width5_count_to9_rst_mode1_dcod_mode0, Ports: 15, Input: 9, Output: 6, Inout: 0
+Module: DW_cntr_scnto_width5_count_to9_rst_mode1_dcod_mode0, Registers: 0, Async set/reset: 0, Sync set/reset: 0
+Module: DW_div_seq_a_width33_b_width33_tc_mode1_num_cyc10_rst_mode1_input_mode0_output_mode1_early_start0, Ports: 138, Input: 70, Output: 68, Inout: 0
+Module: DW_div_seq_a_width33_b_width33_tc_mode1_num_cyc10_rst_mode1_input_mode0_output_mode1_early_start0, Registers: 186, Async set/reset: 0, Sync set/reset: 189
+Module: DW_cntr_scnto_width5_count_to9_rst_mode1_dcod_mode0, Ports: 15, Input: 9, Output: 6, Inout: 0
+Module: DW_cntr_scnto_width5_count_to9_rst_mode1_dcod_mode0, Registers: 0, Async set/reset: 0, Sync set/reset: 0
+Module: DW_cntr_scnto_width5_count_to9_rst_mode1_dcod_mode0, Ports: 15, Input: 9, Output: 6, Inout: 0
+Module: DW_cntr_scnto_width5_count_to9_rst_mode1_dcod_mode0, Registers: 0, Async set/reset: 0, Sync set/reset: 0
+Module: DW01_absval_width33, Ports: 66, Input: 33, Output: 33, Inout: 0
+Module: DW01_absval_width33, Registers: 0, Async set/reset: 0, Sync set/reset: 0
+Module: DW_cntr_scnto_width5_count_to9_rst_mode1_dcod_mode0, Ports: 15, Input: 9, Output: 6, Inout: 0
+Module: DW_cntr_scnto_width5_count_to9_rst_mode1_dcod_mode0, Registers: 0, Async set/reset: 0, Sync set/reset: 0
+Module: DW_cntr_scnto_width5_count_to9_rst_mode1_dcod_mode0, Ports: 15, Input: 9, Output: 6, Inout: 0
+Module: DW_cntr_scnto_width5_count_to9_rst_mode1_dcod_mode0, Registers: 0, Async set/reset: 0, Sync set/reset: 0
+  Mapping Optimization (Phase 2)
+  Retiming mul_DW_mult_pipe_J10_0 (u_execute/u_mul/u_mult)
+  Preferred flip-flop is DFFRS_X1 with setup = 0.04
+
+
+  Retiming base-clock my_clk, rising edge.
+  Beginning minimum period retiming ...
+  ... minimum period retiming done.
+  Beginning minimum area retiming step 1 ...
+  ... minimum area retiming step 1 done.
+  Beginning minimum area retiming step 2 ...
+  5% 10% 15% 20% 25% 30% 35% 40% 45% 50% 55% 60% 65% 70% 75% 80% 85% 90% 95% 100% 
+  ... minimum area retiming step 2 done.
+  Beginning minimum area retiming step 3 ...
+  10% 20% 30% 40% 50% 60% ... 100% 
+  ... minimum area retiming step 3 done.
+  Beginning final register move ...
+  ... final register move done.
+  Lower bound estimate = 9.62
+  Critical path length = 9.62
+  Clock correction = 0.12 (clock-to-Q delay = 0.09, setup = 0.04, uncertainty = 0.00)
+  Mapping Optimization (Phase 3)
+
+                                  TOTAL                                                            
+   ELAPSED            WORST NEG   SETUP    DESIGN                              LEAKAGE   MIN DELAY 
+    TIME      AREA      SLACK     COST    RULE COST         ENDPOINT            POWER      COST    
+  --------- --------- --------- --------- --------- ------------------------- --------- -----------
+    0:16:33  712996.0      5.01    4280.2   18357.4 u_execute/u_div/u_div/part_rem_reg_reg[29]/SE 18451598.0000      0.00  
+    0:16:33  712996.0      5.01    4280.2   18357.4 u_execute/u_div/u_div/part_rem_reg_reg[29]/SE 18451598.0000      0.00  
+    0:16:43  712356.0      4.82    4163.6   18327.8 u_execute/u_div/u_div/part_rem_reg_reg[29]/SE 18416620.0000      0.00  
+    0:16:46  712368.0      4.66    4063.6   18327.8 u_execute/u_div/u_div/part_rem_reg_reg[29]/SE 18416014.0000      0.00  
+    0:16:49  712293.8      4.63    4062.6   18327.8 u_execute/u_div/u_div/part_rem_reg_reg[29]/SE 18412040.0000      0.00  
+    0:16:52  712090.8      4.48    3958.3   17825.6 u_execute/u_div/u_div/part_rem_reg_reg[29]/SE 18400386.0000      0.00  
+    0:16:54  712064.2      4.45    3951.7   17724.1 u_execute/u_div/u_div/part_rem_reg_reg[29]/SE 18398546.0000      0.00  
+    0:17:07  707836.1      4.33    3876.9   17773.1                           18330122.0000      0.00  
+    0:18:08  705258.1      4.61    4010.4   17890.9                           18241682.0000      0.00  
+
+  Beginning Constant Register Removal
+  -----------------------------------
+    0:18:21  706155.8      5.25    4323.3   17746.9                           18290104.0000      0.00  
+    0:19:15  706151.8      5.25    4327.0   17746.9                           18290014.0000      0.00  
+
+  Beginning Global Optimizations
+  ------------------------------
+  Numerical Synthesis (Phase 1)
+  Numerical Synthesis (Phase 2)
+  Global Optimization (Phase 1)
+  Global Optimization (Phase 2)
+  Global Optimization (Phase 3)
+  Global Optimization (Phase 4)
+  Global Optimization (Phase 5)
+  Global Optimization (Phase 6)
+  Global Optimization (Phase 7)
+  Global Optimization (Phase 8)
+  Global Optimization (Phase 9)
+  Global Optimization (Phase 10)
+  Global Optimization (Phase 11)
+  Global Optimization (Phase 12)
+  Global Optimization (Phase 13)
+  Global Optimization (Phase 14)
+  Global Optimization (Phase 15)
+  Global Optimization (Phase 16)
+  Global Optimization (Phase 17)
+  Global Optimization (Phase 18)
+  Global Optimization (Phase 19)
+  Global Optimization (Phase 20)
+  Global Optimization (Phase 21)
+  Global Optimization (Phase 22)
+  Global Optimization (Phase 23)
+  Global Optimization (Phase 24)
+  Global Optimization (Phase 25)
+  Global Optimization (Phase 26)
+  Global Optimization (Phase 27)
+  Global Optimization (Phase 28)
+  Global Optimization (Phase 29)
+  Global Optimization (Phase 30)
+  Global Optimization (Phase 31)
+  Global Optimization (Phase 32)
+  Global Optimization (Phase 33)
+  Global Optimization (Phase 34)
+  Selecting critical implementations
+  Mapping 'cpu_DW01_add_3'
+  Mapping 'cpu_DW01_add_4'
+  Mapping 'free_list_DP_OP_15607J3_122_6440_0'
+  Mapping 'cpu_DW01_add_5'
+  Mapping 'cpu_DW01_add_6'
+  Mapping 'cpu_DW01_add_7'
+  Mapping 'cpu_DW01_add_8'
+  Mapping 'cpu_DW01_add_9'
+  Mapping 'cpu_DW01_add_10'
+  Mapping 'cpu_DW01_add_11'
+  Mapping 'cpu_DW01_add_12'
+  Mapping 'cpu_DW01_add_13'
+  Mapping 'cpu_DW01_add_14'
+  Mapping 'cpu_DW01_add_15'
+  Mapping 'cpu_DW01_add_16'
+
+  Beginning Isolate Ports
+  -----------------------
+
+  Beginning Delay Optimization
+  ----------------------------
+    0:20:59  486775.0      0.78      72.0   20003.6                           6644852.0000      0.00  
+    0:21:00  486762.2      0.00       0.0   19994.2                           6644807.0000      0.00  
+    0:21:00  486762.2      0.00       0.0   19994.2                           6644807.0000      0.00  
+    0:22:02  471805.3      0.00       0.0   19610.6                           6659994.5000      0.00  
+    0:22:52  464977.9      0.00       0.0   19048.6                           6496682.0000      0.00  
+    0:24:36  446327.3      0.00       0.0   43442.9                           6092614.5000      0.00  
+
+  Beginning WLM Backend Optimization
+  --------------------------------------
+    0:25:43  444115.8      0.00       0.0   42962.5                           5987862.0000      0.00  
+    0:25:55  443520.2      0.00       0.0   42954.6                           5971015.0000      0.00  
+    0:26:15  442815.0      0.00       0.0   42357.0                           5948704.0000      0.00  
+    0:26:29  442187.5      0.00       0.0   42183.1                           5929329.0000      0.00  
+    0:26:35  441451.0      0.00       0.0   42178.5                           5907701.0000      0.00  
+    0:26:38  441183.1      0.00       0.0   42151.0                           5899392.5000      0.00  
+    0:26:40  441036.8      0.00       0.0   42122.8                           5894605.5000      0.00  
+    0:26:40  441036.8      0.00       0.0   42122.8                           5894605.5000      0.00  
+    0:26:40  441036.8      0.00       0.0   42122.8                           5894605.5000      0.00  
+    0:26:40  441036.8      0.00       0.0   42122.8                           5894605.5000      0.00  
+    0:26:41  441036.8      0.00       0.0   42122.8                           5894605.5000      0.00  
+    0:26:55  439743.8      0.00       0.0   41998.7                           5843079.5000      0.00  
+    0:26:56  439743.8      0.00       0.0   41998.7                           5843079.5000      0.00  
+    0:26:56  439743.8      0.00       0.0   41998.7                           5843079.5000      0.00  
+    0:26:56  439743.8      0.00       0.0   41998.7                           5843079.5000      0.00  
+    0:26:56  439743.8      0.00       0.0   41998.7                           5843079.5000      0.00  
+    0:26:56  439743.8      0.00       0.0   41998.7                           5843079.5000      0.00  
+    0:26:56  439743.8      0.00       0.0   41998.7                           5843079.5000      0.00  
+    0:26:56  439743.8      0.00       0.0   41998.7                           5843079.5000      0.00  
+    0:26:56  439743.8      0.00       0.0   41998.7                           5843079.5000      0.00  
+    0:26:56  439743.8      0.00       0.0   41998.7                           5843079.5000      0.00  
+    0:26:56  439743.8      0.00       0.0   41998.7                           5843079.5000      0.00  
+    0:26:56  439743.8      0.00       0.0   41998.7                           5843079.5000      0.00  
+    0:26:56  439743.8      0.00       0.0   41998.7                           5843079.5000      0.00  
+    0:26:56  439743.8      0.00       0.0   41998.7                           5843079.5000      0.00  
+    0:26:56  439743.8      0.00       0.0   41998.7                           5843079.5000      0.00  
+    0:26:56  439743.8      0.00       0.0   41998.7                           5843079.5000      0.00  
+    0:26:56  439743.8      0.00       0.0   41998.7                           5843079.5000      0.00  
+    0:26:56  439743.8      0.00       0.0   41998.7                           5843079.5000      0.00  
+    0:26:56  439743.8      0.00       0.0   41998.7                           5843079.5000      0.00  
+
+
+  Beginning Design Rule Fixing  (max_transition)  (max_fanout)  (max_capacitance)
+  ----------------------------
+
+                                  TOTAL                                                            
+   ELAPSED            WORST NEG   SETUP    DESIGN                              LEAKAGE   MIN DELAY 
+    TIME      AREA      SLACK     COST    RULE COST         ENDPOINT            POWER      COST    
+  --------- --------- --------- --------- --------- ------------------------- --------- -----------
+    0:26:56  439743.8      0.00       0.0   41998.7                           5843079.5000      0.00  
+  Global Optimization (Phase 35)
+  Global Optimization (Phase 36)
+  Global Optimization (Phase 37)
+    0:27:06  440454.8      0.00       0.0   13395.1 dram_rdata[62]            5873079.5000      0.00  
+    0:27:09  440542.6      0.00       0.0   12472.9 net932477                 5875791.0000      0.00  
+    0:27:10  440606.9      0.00       0.0   11953.7                           5875865.5000      0.00  
+    0:27:10  440606.9      0.00       0.0   11953.7                           5875865.5000      0.00  
+    0:27:16  441766.4      0.00       0.0   11953.7                           5936840.0000      0.00  
+    0:27:16  441766.4      0.00       0.0   11953.7                           5936840.0000      0.00  
+    0:27:16  441766.4      0.00       0.0   11953.7                           5936840.0000      0.00  
+    0:27:31  440566.0      0.00       0.0   11956.9                           5845257.5000      0.00  
+    0:27:31  440566.0      0.00       0.0   11956.9                           5845257.5000      0.00  
+    0:27:31  440566.0      0.00       0.0   11956.9                           5845257.5000      0.00  
+    0:27:31  440566.0      0.00       0.0   11956.9                           5845257.5000      0.00  
+    0:27:31  440566.0      0.00       0.0   11956.9                           5845257.5000      0.00  
+    0:27:31  440566.0      0.00       0.0   11956.9                           5845257.5000      0.00  
+    0:27:31  440566.0      0.00       0.0   11956.9                           5845257.5000      0.00  
+    0:27:31  440566.0      0.00       0.0   11956.9                           5845257.5000      0.00  
+    0:27:31  440566.0      0.00       0.0   11956.9                           5845257.5000      0.00  
+    0:27:31  440566.0      0.00       0.0   11956.9                           5845257.5000      0.00  
+    0:27:31  440566.0      0.00       0.0   11956.9                           5845257.5000      0.00  
+    0:27:31  440566.0      0.00       0.0   11956.9                           5845257.5000      0.00  
+    0:27:31  440566.0      0.00       0.0   11956.9                           5845257.5000      0.00  
+    0:27:31  440566.0      0.00       0.0   11956.9                           5845257.5000      0.00  
+    0:27:31  440566.0      0.00       0.0   11956.9                           5845257.5000      0.00  
+    0:27:31  440566.0      0.00       0.0   11956.9                           5845257.5000      0.00  
+    0:27:31  440566.0      0.00       0.0   11956.9                           5845257.5000      0.00  
+    0:27:32  440566.0      0.00       0.0   11956.9                           5845257.5000      0.00  
+    0:27:32  440566.0      0.00       0.0   11956.9                           5845257.5000      0.00  
+
+                                  TOTAL                                                            
+   ELAPSED            WORST NEG   SETUP    DESIGN                              LEAKAGE   MIN DELAY 
+    TIME      AREA      SLACK     COST    RULE COST         ENDPOINT            POWER      COST    
+  --------- --------- --------- --------- --------- ------------------------- --------- -----------
+    0:27:45  440458.0      0.00       0.0   11956.9                           5843923.5000      0.00  
+    0:28:02  439161.0      0.00       0.0   12136.9                           5821138.5000      0.00  
+    0:28:02  439161.0      0.00       0.0   12136.9                           5821138.5000      0.00  
+    0:28:03  439161.0      0.00       0.0   12136.9                           5821138.5000      0.00  
+    0:28:13  439112.0      0.00       0.0   12133.5                           5815697.0000      0.00  
+    0:28:29  439067.6      0.00       0.0   12133.5                           5814887.0000      0.00  
+    0:28:48  439004.0      0.00       0.0   12128.4                           5813410.0000      0.00  
+    0:28:53  438978.5      0.00       0.0   12118.2                           5812814.0000      0.00  
+    0:28:59  439087.8      0.00       0.0   11631.8 mem/d_cache/SRAM_data[473] 5815604.0000      0.00  
+    0:29:00  439520.6      0.00       0.0   10373.2 mem/i_cache/net984590     5827240.0000      0.00  
+    0:29:02  439868.5      0.00       0.0    9546.8 mem/d_cache/net1045261    5837574.0000      0.00  
+    0:29:03  439845.9      0.00       0.0    9546.8                           5836253.0000      0.00  
+    0:29:03  439845.9      0.00       0.0    9546.8                           5836253.0000      0.00  
+    0:29:03  439845.9      0.00       0.0    9546.8                           5836253.0000      0.00  
+    0:29:03  439845.9      0.00       0.0    9546.8                           5836253.0000      0.00  
+    0:29:03  439845.9      0.00       0.0    9546.8                           5836253.0000      0.00  
+    0:29:03  439845.9      0.00       0.0    9546.8                           5836253.0000      0.00  
+    0:29:13  439721.2      0.00       0.0    9574.7                           5832128.0000      0.00  
+CPU Load: 17%, Ram Free: 12 GB, Swap Free: 7 GB, Work Disk Free: 24 GB, Tmp Disk Free: 7 GB
+Loading db file '/class/ece411/freepdk-45nm/stdcells.db'
+Loading db file '/home/seanms4/ece411/mp_ooo/build/sram/mp_cache_data_array/mp_cache_data_array_TT_1p0V_25C_lib.db'
+Loading db file '/home/seanms4/ece411/mp_ooo/build/sram/mp_cache_tag_array/mp_cache_tag_array_TT_1p0V_25C_lib.db'
+
+
+Note: Symbol # after min delay cost means estimated hold TNS across all active scenarios 
+
+
+  Optimization Complete
+  ---------------------
+Information: State dependent leakage is now switched from off to on.
+Information: Propagating switching activity (low effort zero delay simulation). (PWR-6)
+CPU Load: 16%, Ram Free: 12 GB, Swap Free: 7 GB, Work Disk Free: 24 GB, Tmp Disk Free: 7 GB
+Information: Total number of MV cells in the design.
+----------------------------------------------------------------------------------------------------
+ MV Cells                                           Total Number                                   
+----------------------------------------------------------------------------------------------------
+ Level Shifter:                                     0                                             
+ Enable Level Shifter:                              0                                             
+ Isolation Cell:                                    0                                             
+ Retention Cell:                                    0                                             
+ Retention Clamp Cell:                              0                                             
+ Switch Cell:                                       0                                             
+ Always-On Cell:                                    0                                             
+ Repeater Cell:                                     0                                             
+
+----------------------------------------------------------------------------------------------------
+Unmapped MV Cells 
+----------------------------------------------------------------------------------------------------
+0 Isolation Cells are unmapped 
+0 Retention Clamp Cells are unmapped 
+----------------------------------------------------------------------------------------------------
+    eval $env(DC_COMPILE_CMD) : 1
+    for {set i 0} {$i < $env(DC_COMPILE_ITER)} {incr i} {
+        eval $env(DC_COMPILE_CMD_INC)
+    } : 
+ : 
+# Report and write results
+try_wrapper {
+    current_design $design_toplevel
+    report_area -hier > area.rpt
+    report_timing -delay max > timing.rpt
+    check_design
+
+    write_file -format ddc -hierarchy -output synth.ddc
+    write_file -format verilog -hierarchy -output [format "%s.gate.v" $design_toplevel]
+}
+ : 
+Current design is 'cpu'.
+    current_design $design_toplevel : _sel187
+    report_area -hier > area.rpt : 
+    report_timing -delay max > timing.rpt : 
+ 
+****************************************
+check_design summary:
+Version:     W-2024.09
+Date:        Fri Jul 17 20:51:03 2026
+****************************************
+
+                   Name                                            Total
+--------------------------------------------------------------------------------
+No issues found.
+--------------------------------------------------------------------------------
+
+    check_design : 1
+ : 
+Writing ddc file 'synth.ddc'.
+    write_file -format ddc -hierarchy -output synth.ddc : 1
+Writing verilog file '/home/seanms4/ece411/mp_ooo/build/syn/top_tb/cpu.gate.v'.
+    write_file -format verilog -hierarchy -output [format "%s.gate.v" $design_toplevel] : 1
+ : 
+exit 0
+
+Memory usage for this session 1432 Mbytes.
+Memory usage for this session including child processes 4419 Mbytes.
+CPU usage for this session 3480 seconds ( 0.97 hours ).
+Elapsed time for this session 2044 seconds ( 0.57 hours ).
+
+Thank you...
