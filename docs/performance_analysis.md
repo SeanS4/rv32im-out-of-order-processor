@@ -5,7 +5,7 @@ The final processor completed CoreMark with **304,044 committed instructions in 
 ## Final CoreMark Results
 
 | Metric | Result |
-|---|---|
+|:---|:---|
 | IPC | 0.6198 |
 | Committed instructions | 304,044 |
 | Total cycles | 490,521 |
