@@ -15,7 +15,7 @@ At a high level, an in-order frontend feeds a dynamically scheduled, out-of-orde
 ## Core Configuration
 
 | Structure | Configuration |
-|:---:|:---:|
+|---|---|
 | Reorder buffer | 32 entries |
 | Reservation station | 32 entries |
 | Architectural registers | 32 |
