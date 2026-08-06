@@ -5,7 +5,7 @@ This project implements a synthesizable, single-issue RV32IM processor core base
 At a high level, an in-order frontend feeds a dynamically scheduled, out-of-order execution backend. Architectural registers are renamed into a larger physical register namespace, allowing independent instructions to execute out of order while the reorder buffer preserves precise in-order retirement.
 
 <p align="center">
-  <img src="../images/block_diagram.png" alt="Final RV32IM out-of-order processor datapath" width="850">
+  <img src="../images/block_diagram.svg" alt="Final RV32IM out-of-order processor datapath" width="850">
 </p>
 
 <p align="center">
