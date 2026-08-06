@@ -7,7 +7,7 @@ This repository documents the processor architecture, RTL organization, verifica
 ## Headline Results
 
 | Metric | Result |
-|:---:|:---:|
+|---|---|
 | CoreMark IPC | 0.6198 |
 | Synthesis Timing | 100 MHz target met with +7.2 ps worst-case setup slack |
 | Synthesized Cell Area | 439,721 µm² (0.440 mm²) |
