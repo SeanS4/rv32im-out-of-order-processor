@@ -25,7 +25,7 @@ The original multi-cycle multiplier delayed the product for several cycles, whil
 The final design used a pipelined multiplier with a parallel metadata pipeline of the same latency. The product and its ROB index and destination register advanced together, keeping them aligned through writeback.
 
 <p align="center">
-  <img src="../images/multiplication_pathway.png" alt="Multiplication instruction pathway with parallel metadata tracking" width="650">
+  <img src="../images/multiplication_pathway.png" alt="Multiplication instruction pathway with parallel metadata tracking" width="400">
 </p>
 
 <p align="center">
