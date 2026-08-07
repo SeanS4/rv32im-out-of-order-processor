@@ -1,8 +1,6 @@
 # RTL
 
-This directory contains the SystemVerilog RTL for the out-of-order RV32IM processor.
-
-The RTL is included to supplement the architecture, performance, verification, and synthesis documentation in this repository. The design was created from scratch and is provided for technical review only.
+The SystemVerilog files are included to supplement the architecture, performance, verification, and synthesis documentation in this repository. The design was created from scratch and is provided for technical review only.
 
 ## Organization
 
