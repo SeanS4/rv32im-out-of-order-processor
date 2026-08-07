@@ -13,7 +13,7 @@ This repository documents the processor architecture, RTL organization, verifica
 | Synthesized Cell Area | 439,721 µm² (0.440 mm²) |
 | ISA Support | RV32IM |
 
-IPC was measured over the complete CoreMark run. Timing and area are post-synthesis, pre-layout estimates.
+IPC was measured over a complete CoreMark run. Timing and area are post-synthesis, pre-layout estimates.
 
 ## Architecture Diagram
 
